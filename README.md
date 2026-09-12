@@ -61,6 +61,22 @@
 
 ---
 
+## 📚 สื่อการฝึกอบรมและเอกสารคู่มือ (Training Materials & Documentation)
+
+ระบบมาพร้อมกับสื่อการเรียนรู้เชิงปฏิบัติการและเอกสารคู่มือฉบับสมบูรณ์สำหรับวิทยากรและผู้เข้าอบรม:
+
+1. **สไลด์นำเสนอสำหรับการสอน (PowerPoint & Web Slides)**:
+   - [**`BAAC_Prompt_Hub_Training.pptx`**](BAAC_Prompt_Hub_Training.pptx): ไฟล์สไลด์ Microsoft PowerPoint 16:9 Widescreen (15 สไลด์) โทนสีเขียว-ทอง ธ.ก.ส. พร้อมบันทึกผู้บรรยาย (Speaker Notes) ทุกสไลด์
+   - [**`presentation_baac_prompt_hub.html`**](presentation_baac_prompt_hub.html): สไลด์นำเสนอ Interactive 16:9 บนเบราว์เซอร์ พร้อมโหมดผู้บรรยาย (Presenter Mode - กด `S`) และโหมดเต็มจอ (Fullscreen - กด `F`)
+
+2. **เอกสารคู่มือการใช้งานภาษาไทย (Manuals)**:
+   - [**`BAAC_Prompt_Hub_Manual.pdf`**](BAAC_Prompt_Hub_Manual.pdf): คู่มือการใช้งานทีละขั้นตอน (Step-by-Step) ฉบับ PDF พร้อมพิมพ์
+   - [**`BAAC_Prompt_Hub_Manual.docx`**](BAAC_Prompt_Hub_Manual.docx) / [**`BAAC_Prompt_Hub_Manual.doc`**](BAAC_Prompt_Hub_Manual.doc): คู่มือในรูปแบบ Microsoft Word
+   - [**`manual_baac_prompt_hub.html`**](manual_baac_prompt_hub.html): หน้าเว็บคู่มือการใช้งาน พร้อมปุ่มคลิก "พิมพ์เป็น PDF" ในตัว
+   - [**`MANUAL_BAAC_PROMPT_HUB.md`**](MANUAL_BAAC_PROMPT_HUB.md): เอกสารคู่มือฉบับสมบูรณ์ในรูปแบบ Markdown
+
+---
+
 ## 🚀 วิธีการเปิดใช้งานระบบ
 
 ### ทางเลือกที่ 1: เปิดใช้งานผ่านเครือข่าย Wi-Fi ในห้องเรียน (Local LAN Server)

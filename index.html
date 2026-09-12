@@ -3070,6 +3070,26 @@ const CANVAS_APP_TEMPLATES = [
 
                 {/* Right Action Buttons */}
                 <div className="flex items-center space-x-1.5 sm:space-x-2">
+                  <a
+                    href="presentation_baac_prompt_hub.html"
+                    className="touch-target flex items-center space-x-1 px-2.5 sm:px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 text-xs sm:text-sm font-bold transition border border-amber-400/40"
+                    title="เปิดสไลด์ฝึกอบรม 16:9 และดาวน์โหลด .pptx"
+                  >
+                    <span>📊</span>
+                    <span className="hidden sm:inline">สไลด์อบรม (.PPTX)</span>
+                    <span className="sm:hidden">สไลด์</span>
+                  </a>
+
+                  <a
+                    href="manual_baac_prompt_hub.html"
+                    className="touch-target flex items-center space-x-1 px-2.5 sm:px-3 py-1.5 rounded-xl bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-200 text-xs sm:text-sm font-bold transition border border-emerald-400/40"
+                    title="เปิดคู่มือภาษาไทย และดาวน์โหลด .doc / .pdf"
+                  >
+                    <span>📑</span>
+                    <span className="hidden sm:inline">คู่มือ (.PDF/.DOC)</span>
+                    <span className="sm:hidden">คู่มือ</span>
+                  </a>
+
                   <button
                     onClick={() => setShowQrModal(true)}
                     className="touch-target flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-500 text-baac-900 text-xs sm:text-sm font-bold transition shadow-md"
@@ -4046,6 +4066,24 @@ const CANVAS_APP_TEMPLATES = [
                     เอกสารและเครื่องมือ
                   </h5>
                   <ul className="space-y-1.5">
+                    <li>
+                      <a
+                        href="presentation_baac_prompt_hub.html"
+                        className="text-amber-300 hover:text-amber-200 underline flex items-center gap-1 font-medium"
+                      >
+                        <span>📊</span>
+                        <span>สไลด์ฝึกอบรม 16:9 (.PPTX)</span>
+                      </a>
+                    </li>
+                    <li>
+                      <a
+                        href="manual_baac_prompt_hub.html"
+                        className="text-emerald-300 hover:text-emerald-200 underline flex items-center gap-1 font-medium"
+                      >
+                        <span>📑</span>
+                        <span>คู่มือการใช้งาน (.PDF/.DOC)</span>
+                      </a>
+                    </li>
                     <li>
                       <button
                         onClick={() => setShowQrModal(true)}

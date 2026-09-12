@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>สไลด์ฝึกอบรมระบบคลังแม่แบบ Prompt Engineering ธ.ก.ส. (11 กลุ่มงาน)</title>
+  <!-- Google Fonts: Prompt & Sarabun -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: 'Sarabun', sans-serif;
+      background-color: #0f172a;
+      color: #1e293b;
+      margin: 0;
+      padding: 0;
+      overflow-x: hidden;
+    }
+    h1, h2, h3, h4, .font-heading {
+      font-family: 'Prompt', sans-serif;
+    }
+    .slide-aspect {
+      aspect-ratio: 16 / 9;
+      width: 100%;
+      max-width: 1120px;
+    }
+    .baac-gradient {
+      background: linear-gradient(135deg, #006838 0%, #064e2b 100%);
+    }
+    @media print {
+      body {
+        background: white !important;
+        color: black !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .slide {
+        display: flex !important;
+        page-break-after: always !important;
+        aspect-ratio: 16 / 9 !important;
+        width: 100% !important;
+        box-shadow: none !important;
+        border: 1px solid #e2e8f0 !important;
+        margin-bottom: 2rem !important;
+      }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-between p-2 sm:p-4 lg:p-6">
+
+  <!-- Top Action Navigation Bar -->
+  <header class="no-print w-full max-w-[1120px] bg-slate-800/95 backdrop-blur-md rounded-2xl p-3 sm:px-6 mb-4 flex flex-wrap items-center justify-between gap-3 text-white shadow-xl border border-slate-700">
+    <div class="flex items-center gap-3">
+      <span class="text-2xl">🌾</span>
+      <div>
+        <h1 class="font-heading font-bold text-sm sm:text-base text-emerald-400">สไลด์อบรม BAAC Prompt Hub</h1>
+        <p class="text-xs text-slate-400">สำนักธุรกรรมการเงิน ธ.ก.ส. (15 สไลด์)</p>
+      </div>
+    </div>
+
+    <!-- Quick Download & View Tools -->
+    <div class="flex flex-wrap items-center gap-2">
+      <a href="BAAC_Prompt_Hub_Training.pptx" download class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#006838] hover:bg-[#064e2b] text-white text-xs font-heading font-medium rounded-lg shadow transition">
+        <span>📥</span> ดาวน์โหลด .PPTX
+      </a>
+      <a href="BAAC_Prompt_Hub_Manual.pdf" download class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-heading font-medium rounded-lg shadow transition">
+        <span>📄</span> ดาวน์โหลด .PDF
+      </a>
+      <a href="BAAC_Prompt_Hub_Manual.docx" download class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-heading font-medium rounded-lg shadow transition">
+        <span>📝</span> ดาวน์โหลด .DOC
+      </a>
+      <button onclick="toggleSpeakerNotes()" id="btn-notes" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-heading rounded-lg transition border border-slate-600">
+        <span>🎙️</span> โหมดผู้บรรยาย
+      </button>
+      <button onclick="toggleFullscreen()" class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs font-heading rounded-lg transition border border-slate-600">
+        <span>⛶</span> เต็มจอ
+      </button>
+    </div>
+  </header>
+
+  <!-- Slide Display Container -->
+  <main id="slide-viewport" class="w-full flex justify-center items-center relative my-auto">
+
+    <!-- SLIDE 1: Cover -->
+    <section class="slide slide-aspect bg-[#064e2b] text-white rounded-3xl p-8 sm:p-14 shadow-2xl relative overflow-hidden flex flex-col justify-between border border-emerald-600" data-slide="1">
+      <div class="absolute top-0 right-0 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl"></div>
+      <div>
+        <div class="w-16 h-1.5 bg-amber-400 rounded-full mb-6"></div>
+        <p class="font-heading font-bold text-amber-400 text-base sm:text-lg tracking-wider mb-2">
+          🌾 ธนาคารเพื่อการเกษตรและสหกรณ์การเกษตร (ธ.ก.ส.) • สำนักธุรกรรมการเงิน
+        </p>
+        <h2 class="font-heading font-bold text-3xl sm:text-5xl lg:text-6xl text-white tracking-tight leading-tight mb-4">
+          ระบบคลังแม่แบบ<br><span class="text-emerald-300">Prompt Engineering & Gemini Hub</span>
+        </h2>
+        <p class="text-emerald-100 text-base sm:text-xl font-light max-w-3xl leading-relaxed">
+          คู่มือการใช้งานระบบทีละขั้นตอน (Step-by-Step Training Deck) เพื่อเพิ่มประสิทธิภาพงาน 11 กลุ่มงาน
+        </p>
+      </div>
+
+      <div class="flex flex-wrap items-center justify-between gap-4 pt-6 border-t border-emerald-700/60">
+        <div class="bg-emerald-900/80 border border-emerald-500/50 px-4 py-2 rounded-xl text-xs sm:text-sm font-mono text-emerald-200">
+          🌐 เว็บไซต์: https://cheeptham333.github.io/baac-prompt-hub/
+        </div>
+        <div class="text-xs text-emerald-300 font-heading">
+          🛡️ สถาปัตยกรรม Zero-API • ปลอดภัย 100%
+        </div>
+      </div>
+    </section>
+
+    <!-- SLIDE 2: Objectives & Highlights -->
+    <section class="slide slide-aspect bg-white rounded-3xl p-8 sm:p-12 shadow-2xl relative overflow-hidden flex flex-col justify-between hidden" data-slide="2">
+      <div>
+        <div class="flex items-center justify-between mb-4 border-b border-slate-100 pb-3">
+          <span class="text-xs font-heading font-bold text-[#006838] tracking-wider uppercase">BAAC PROMPT HUB • สำนักธุรกรรมการเงิน</span>
+          <span class="text-xs font-mono text-slate-400">สไลด์ 02 / 15</span>
+        </div>
+        <h2 class="font-heading font-bold text-2xl sm:text-4xl text-[#064e2b] mb-6">วัตถุประสงค์และจุดเด่นสำคัญของระบบ</h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+          <div class="p-5 bg-emerald-50/70 rounded-2xl border border-emerald-200">
+            <h3 class="font-heading font-bold text-[#006838] text-lg mb-2 flex items-center gap-2">
+              <span>🛡️</span> Zero-API 100% ปลอดภัยสูงสุด
+            </h3>
+            <p class="text-sm text-slate-700 leading-relaxed">
+              ไม่ต้องขอ ไม่ต้องกรอก API Key หรือรหัสผ่านใดๆ ระบบประมวลผลบนเบราว์เซอร์เครื่องของท่าน ข้อมูลไม่รั่วไหล สอดคล้องตามเกณฑ์ PDPA 100%
+            </p>
+          </div>
+          <div class="p-5 bg-amber-50/70 rounded-2xl border border-amber-200">
+            <h3 class="font-heading font-bold text-amber-800 text-lg mb-2 flex items-center gap-2">
+              <span>🏛️</span> แม่แบบตรงภารกิจครบ 11 กลุ่มงาน
+            </h3>
+            <p class="text-sm text-slate-700 leading-relaxed">
+              รวบรวม Prompt จากงานจริงของสำนักธุรกรรมการเงิน เช่น งาน SPIN, เช็ค ICAS, กระทบยอด ATM/CDM, และงานหนังสือราชการ
+            </p>
+          </div>
+          <div class="p-5 bg-blue-50/70 rounded-2xl border border-blue-200">
+            <h3 class="font-heading font-bold text-blue-800 text-lg mb-2 flex items-center gap-2">
+              <span>👁️</span> Instant AI Output Preview
+            </h3>
+            <p class="text-sm text-slate-700 leading-relaxed">
+              สลับดูตัวอย่างผลลัพธ์คำตอบจริงของ AI ได้ในคลิกเดียว เห็นโครงสร้างตารางและหนังสือราชการก่อนนำ Prompt ไปสั่งการ
+            </p>
+          </div>
+          <div class="p-5 bg-purple-50/70 rounded-2xl border border-purple-200">
+            <h3 class="font-heading font-bold text-purple-800 text-lg mb-2 flex items-center gap-2">
+              <span>⚡</span> 1-Tap Copy & Mobile-First
+            </h3>
+            <p class="text-sm text-slate-700 leading-relaxed">
+              ปุ่มคัดลอกใหญ่พิเศษ 48px พร้อมระบบสั่นเตือนบนมือถือ (Haptic Feedback) คัดลอกสำเร็จแม่นยำทุกอุปกรณ์
+            </p>
+          </div>
+        </div>
+      </div>
+      <div class="text-xs text-slate-400 text-right">ธนาคารเพื่อการเกษตรและสหกรณ์การเกษตร</div>
+    </section>
+
+    <!-- SLIDE 3: Access & Classroom QR Code -->
+    <section class="slide slide-aspect bg-white rounded-3xl p-8 sm:p-12 shadow-2xl relative overflow-hidden flex flex-col justify-between hidden" data-slide="3">
+      <div>
+        <div class="flex items-center justify-between mb-4 border-b border-slate-100 pb-3">
+          <span class="text-xs font-heading font-bold text-[#006838] tracking-wider uppercase">การเข้าใช้งาน • ACCESS & QR CODE</span>
+          <span class="text-xs font-mono text-slate-400">สไลด์ 03 / 15</span>
+        </div>
+        <h2 class="font-heading font-bold text-2xl sm:text-4xl text-[#064e2b] mb-6">การเข้าใช้งาน และ Classroom QR Code (สำหรับ 150 คน)</h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="p-6 bg-slate-50 rounded-2xl border border-slate-200">
+            <h3 class="font-heading font-bold text-[#006838] text-xl mb-3 flex items-center gap-2">
+              <span>🌐</span> เข้าผ่าน Web Browser
+            </h3>
+            <p class="text-sm text-slate-700 leading-relaxed mb-4">
+              พิมพ์ URL เข้าสู่ระบบได้โดยตรงทั้งบนคอมพิวเตอร์และมือถือ:
+            </p>
+            <div class="bg-white p-3 rounded-xl border border-emerald-200 font-mono text-sm text-[#006838] font-bold break-all select-all mb-3">
+              https://cheeptham333.github.io/baac-prompt-hub/
+            </div>
+            <p class="text-xs text-slate-500">
+              • รองรับ Chrome, Safari, Microsoft Edge 100% โดยไม่ต้องติดตั้งแอปเสริม
+            </p>
+          </div>
+
+          <div class="p-6 bg-emerald-50/60 rounded-2xl border border-emerald-200">
+            <h3 class="font-heading font-bold text-[#006838] text-xl mb-3 flex items-center gap-2">
+              <span>📲</span> ฟังก์ชัน Classroom QR Code
+            </h3>
+            <ul class="space-y-3 text-sm text-slate-700">
+              <li class="flex items-start gap-2">
+                <span class="text-[#006838] font-bold">✔</span>
+                <span><strong>ปุ่มขยายเต็มจอ (Enlarge for Projector):</strong> ขยาย QR Code เต็มจอฉาย ช่วยให้ผู้เรียนแถวหลังสุด (15-20 ม.) สแกนติดง่าย</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-[#006838] font-bold">✔</span>
+                <span><strong>โหมดขาว-ดำ คมชัดสูง (High-Contrast):</strong> ตัดแสงสะท้อนของไฟห้องสัมมนา เพิ่มความคมชัด</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-[#006838] font-bold">✔</span>
+                <span>สแกนปุ๊บ เปิดใช้งานพร้อมกันได้ทั้ง 150 คนทันที ไม่ติดขัด</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="text-xs text-slate-400 text-right">ธนาคารเพื่อการเกษตรและสหกรณ์การเกษตร</div>
+    </section>
+
+    <!-- SLIDE 4: UI Overview -->
+    <section class="slide slide-aspect bg-white rounded-3xl p-8 sm:p-12 shadow-2xl relative overflow-hidden flex flex-col justify-between hidden" data-slide="4">
+      <div>
+        <div class="flex items-center justify-between mb-4 border-b border-slate-100 pb-3">
+          <span class="text-xs font-heading font-bold text-[#006838] tracking-wider uppercase">โครงสร้างหน้าจอ • UI COMPONENTS</span>
+          <span class="text-xs font-mono text-slate-400">สไลด์ 04 / 15</span>
+        </div>
+        <h2 class="font-heading font-bold text-2xl sm:text-4xl text-[#064e2b] mb-6">ภาพรวมโครงสร้างหน้าจอหลัก (UI Overview)</h2>
+
+        <div class="space-y-3">
+          <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200 flex items-center gap-4">
+            <span class="w-10 h-10 rounded-xl bg-emerald-100 text-[#006838] font-bold flex items-center justify-center font-heading text-lg">1</span>
+            <div>
+              <h4 class="font-heading font-bold text-slate-800 text-base">ส่วนหัวและแถบเครื่องมือ (Header & Tools)</h4>
+              <p class="text-xs text-slate-600">แสดงโลโก้ ธ.ก.ส., สถานะ 11 กลุ่มงาน, ปุ่ม QR Code ห้องเรียน, ปุ่มคู่มือ และปุ่มดาวน์โหลดสมุดงาน Colab</p>
+            </div>
+          </div>
+          <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200 flex items-center gap-4">
+            <span class="w-10 h-10 rounded-xl bg-amber-100 text-amber-800 font-bold flex items-center justify-center font-heading text-lg">2</span>
+            <div>
+              <h4 class="font-heading font-bold text-slate-800 text-base">แถบค้นหาและตัวกรองประเภทงาน (Search & Category)</h4>
+              <p class="text-xs text-slate-600">ช่องค้นหาอัจฉริยะ (Smart Search) พร้อม Dropdown แยก 5 หมวดหมู่งานหลัก</p>
+            </div>
+          </div>
+          <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200 flex items-center gap-4">
+            <span class="w-10 h-10 rounded-xl bg-blue-100 text-blue-800 font-bold flex items-center justify-center font-heading text-lg">3</span>
+            <div>
+              <h4 class="font-heading font-bold text-slate-800 text-base">ชิปเลือกกลุ่มงาน (Department Pills 01-11)</h4>
+              <p class="text-xs text-slate-600">แถบชิปเลื่อนแนวนอน แตะเพื่อกรองเฉพาะกลุ่มงานที่ต้องการได้ในคลิกเดียว</p>
+            </div>
+          </div>
+          <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200 flex items-center gap-4">
+            <span class="w-10 h-10 rounded-xl bg-emerald-600 text-white font-bold flex items-center justify-center font-heading text-lg">4</span>
+            <div>
+              <h4 class="font-heading font-bold text-slate-800 text-base">การ์ดแม่แบบ Prompt (Prompt Card Anatomy)</h4>
+              <p class="text-xs text-slate-600">บรรจุคำสั่ง, กล่องปรับตัวแปรข้อมูล (Variables), แท็บดูตัวอย่างคำตอบ และปุ่มคัดลอกใน 1 สัมผัส</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="text-xs text-slate-400 text-right">ธนาคารเพื่อการเกษตรและสหกรณ์การเกษตร</div>
+    </section>
+
+    <!-- SLIDE 5: Step 1: Select Department -->
+    <section class="slide slide-aspect bg-white rounded-3xl p-8 sm:p-12 shadow-2xl relative overflow-hidden flex flex-col justify-between hidden" data-slide="5">
+      <div>
+        <div class="flex items-center justify-between mb-4 border-b border-slate-100 pb-3">
+          <span class="text-xs font-heading font-bold text-[#006838] tracking-wider uppercase">ขั้นตอนปฏิบัติการ • STEP 1</span>
+          <span class="text-xs font-mono text-slate-400">สไลด์ 05 / 15</span>
+        </div>
+        <h2 class="font-heading font-bold text-2xl sm:text-4xl text-[#064e2b] mb-6">Step 1: การค้นหาและเลือกกลุ่มงาน (01 ถึง 11)</h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="p-6 bg-emerald-50/50 rounded-2xl border border-emerald-200">
+            <h3 class="font-heading font-bold text-[#006838] text-xl mb-3">วิธีที่ 1: กดชิปกลุ่มงาน (Pills 01 - 11)</h3>
+            <p class="text-sm text-slate-700 leading-relaxed mb-4">
+              • แถบแนวนอนด้านบนแสดงรหัส <code>01</code> ถึง <code>11</code><br>
+              • เลื่อนซ้าย-ขวาได้สะดวกบนจอมือถือด้วยนิ้วโป้งเดียว<br>
+              • ตัวอย่าง: แตะ <code>06</code> เพื่อกรองเฉพาะงานโอนเงินระหว่างธนาคาร
+            </p>
+            <div class="p-3 bg-white rounded-xl border border-emerald-200 text-xs text-slate-600 font-mono">
+              [ทั้งหมด] [01 แผน] ... [06 โอนเงิน] ... [11 ATM]
+            </div>
+          </div>
+
+          <div class="p-6 bg-amber-50/50 rounded-2xl border border-amber-200">
+            <h3 class="font-heading font-bold text-amber-800 text-xl mb-3">วิธีที่ 2: ใช้ช่องค้นหาอัจฉริยะ (Smart Search)</h3>
+            <p class="text-sm text-slate-700 leading-relaxed mb-4">
+              พิมพ์ค้นหาได้ทั้งรหัสและคำศัพท์ประจำวัน เช่น:<br>
+              • <code>SPIN</code> -> งานโอนเงินและปรับปรุง Payment<br>
+              • <code>เช็คคืน</code> / <code>ICAS</code> -> งานเรียกเก็บเช็ค<br>
+              • <code>VOC</code> -> งานแก้ไขข้อร้องเรียนลูกค้า<br>
+              • <code>ATM</code> -> งานตรวจพิสูจน์เงินสดตู้ ATM
+            </p>
+            <div class="p-3 bg-white rounded-xl border border-amber-200 text-xs text-slate-600">
+              🔍 ระบบค้นหาแบบ Real-time ค้นพบแม่แบบทันทีในขณะพิมพ์
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="text-xs text-slate-400 text-right">ธนาคารเพื่อการเกษตรและสหกรณ์การเกษตร</div>
+    </section>
+
+    <!-- SLIDE 6: Step 2: Filter Category -->
+    <section class="slide slide-aspect bg-white rounded-3xl p-8 sm:p-12 shadow-2xl relative overflow-hidden flex flex-col justify-between hidden" data-slide="6">
+      <div>
+        <div class="flex items-center justify-between mb-4 border-b border-slate-100 pb-3">
+          <span class="text-xs font-heading font-bold text-[#006838] tracking-wider uppercase">ขั้นตอนปฏิบัติการ • STEP 2</span>
+          <span class="text-xs font-mono text-slate-400">สไลด์ 06 / 15</span>
+        </div>
+        <h2 class="font-heading font-bold text-2xl sm:text-4xl text-[#064e2b] mb-6">Step 2: การกรองตามหมวดหมู่ประเภทงาน (5 หมวด)</h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-3">
+          <div class="p-4 bg-emerald-50 rounded-2xl border border-emerald-200 text-center">
+            <span class="text-2xl block mb-2">📊</span>
+            <h4 class="font-heading font-bold text-[#006838] text-sm mb-1">วิเคราะห์ & สรุปข้อมูล</h4>
+            <p class="text-[11px] text-slate-600">วิเคราะห์ KPI ยุทธศาสตร์, สถิติธุรกรรม</p>
+          </div>
+          <div class="p-4 bg-blue-50 rounded-2xl border border-blue-200 text-center">
+            <span class="text-2xl block mb-2">📝</span>
+            <h4 class="font-heading font-bold text-blue-800 text-sm mb-1">ร่างเอกสาร & หนังสือ</h4>
+            <p class="text-[11px] text-slate-600">บันทึกข้อความเวียนสาขา, หนังสือประสาน ITMX</p>
+          </div>
+          <div class="p-4 bg-purple-50 rounded-2xl border border-purple-200 text-center">
+            <span class="text-2xl block mb-2">⚖️</span>
+            <h4 class="font-heading font-bold text-purple-800 text-sm mb-1">กระทบยอด & ตรวจสอบ</h4>
+            <p class="text-[11px] text-slate-600">ตรวจนับเงินสด ATM, กระทบยอด 3 ทาง</p>
+          </div>
+          <div class="p-4 bg-amber-50 rounded-2xl border border-amber-200 text-center">
+            <span class="text-2xl block mb-2">💬</span>
+            <h4 class="font-heading font-bold text-amber-800 text-sm mb-1">ตอบข้อร้องเรียน VOC</h4>
+            <p class="text-[11px] text-slate-600">สคริปต์ Call Center, ชี้แจงเงินไม่เข้า</p>
+          </div>
+          <div class="p-4 bg-rose-50 rounded-2xl border border-rose-200 text-center">
+            <span class="text-2xl block mb-2">📋</span>
+            <h4 class="font-heading font-bold text-rose-800 text-sm mb-1">วางแผน & เกณฑ์ SOP</h4>
+            <p class="text-[11px] text-slate-600">คู่มือปฏิบัติงานมาตรฐาน, Checklist สาขา</p>
+          </div>
+        </div>
+
+        <div class="mt-8 p-4 bg-slate-50 rounded-2xl border border-slate-200 text-sm text-slate-700">
+          💡 <strong>คำแนะนำ:</strong> สามารถใช้ควบคู่กับการเลือกชิปกลุ่มงาน เพื่อค้นหาแม่แบบที่เจาะจงเฉพาะงานที่กำลังทำได้อย่างรวดเร็ว
+        </div>
+      </div>
+      <div class="text-xs text-slate-400 text-right">ธนาคารเพื่อการเกษตรและสหกรณ์การเกษตร</div>
+    </section>
+
+    <!-- SLIDE 7: Step 3: RTF Framework -->
+    <section class="slide slide-aspect bg-white rounded-3xl p-8 sm:p-12 shadow-2xl relative overflow-hidden flex flex-col justify-between hidden" data-slide="7">
+      <div>
+        <div class="flex items-center justify-between mb-4 border-b border-slate-100 pb-3">
+          <span class="text-xs font-heading font-bold text-[#006838] tracking-wider uppercase">โครงสร้างแม่แบบ • STEP 3</span>
+          <span class="text-xs font-mono text-slate-400">สไลด์ 07 / 15</span>
+        </div>
+        <h2 class="font-heading font-bold text-2xl sm:text-4xl text-[#064e2b] mb-6">Step 3: โครงสร้างแม่แบบมาตรฐาน RTF Framework</h2>
+
+        <div class="space-y-4">
+          <div class="p-4 bg-emerald-50 rounded-2xl border border-emerald-200 flex items-start gap-4">
+            <span class="w-12 h-12 rounded-xl bg-[#006838] text-white font-bold flex items-center justify-center font-heading text-xl shrink-0">R</span>
+            <div>
+              <h4 class="font-heading font-bold text-[#006838] text-lg">Role (บทบาทความเชี่ยวชาญ)</h4>
+              <p class="text-sm text-slate-700">ระบุให้ AI ทราบว่าต้องสวมบทบาทเป็นใคร เช่น "คุณคือผู้เชี่ยวชาญด้านงานโอนเงินระหว่างธนาคาร ธ.ก.ส." เพื่อให้ใช้คำศัพท์และสำนวนธนาคารที่ถูกต้อง</p>
+            </div>
+          </div>
+          <div class="p-4 bg-amber-50 rounded-2xl border border-amber-200 flex items-start gap-4">
+            <span class="w-12 h-12 rounded-xl bg-amber-600 text-white font-bold flex items-center justify-center font-heading text-xl shrink-0">T</span>
+            <div>
+              <h4 class="font-heading font-bold text-amber-800 text-lg">Task (ภารกิจคำสั่งที่ชัดเจน)</h4>
+              <p class="text-sm text-slate-700">บอกเป้าหมายคำสั่งงานอย่างละเอียด เช่น "ร่างหนังสือประสาน ITMX กรณีรายการขัดข้อง และเสนอแนวทางการปรับปรุงระบบ"</p>
+            </div>
+          </div>
+          <div class="p-4 bg-blue-50 rounded-2xl border border-blue-200 flex items-start gap-4">
+            <span class="w-12 h-12 rounded-xl bg-blue-600 text-white font-bold flex items-center justify-center font-heading text-xl shrink-0">F</span>
+            <div>
+              <h4 class="font-heading font-bold text-blue-800 text-lg">Format (รูปแบบผลลัพธ์ที่ต้องการ)</h4>
+              <p class="text-sm text-slate-700">กำหนดโครงสร้างส่งมอบ เช่น ตารางวิเคราะห์, บันทึกข้อความราชการที่มีเลขที่อ้างอิง และสคริปต์สำหรับแจ้งลูกค้า</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="text-xs text-slate-400 text-right">ธนาคารเพื่อการเกษตรและสหกรณ์การเกษตร</div>
+    </section>
+
+    <!-- SLIDE 8: Step 4: Dynamic Variables -->
+    <section class="slide slide-aspect bg-white rounded-3xl p-8 sm:p-12 shadow-2xl relative overflow-hidden flex flex-col justify-between hidden" data-slide="8">
+      <div>
+        <div class="flex items-center justify-between mb-4 border-b border-slate-100 pb-3">
+          <span class="text-xs font-heading font-bold text-[#006838] tracking-wider uppercase">ขั้นตอนปฏิบัติการ • STEP 4</span>
+          <span class="text-xs font-mono text-slate-400">สไลด์ 08 / 15</span>
+        </div>
+        <h2 class="font-heading font-bold text-2xl sm:text-4xl text-[#064e2b] mb-6">Step 4: การปรับแต่งตัวแปรข้อมูล (Dynamic Variables)</h2>
+
+        <div class="p-6 bg-slate-50 rounded-3xl border border-slate-200">
+          <div class="flex items-center gap-3 mb-4">
+            <span class="text-2xl">⚙️</span>
+            <h3 class="font-heading font-bold text-[#006838] text-xl">ระบบแทนที่คำอัตโนมัติแบบ Real-time</h3>
+          </div>
+          <ul class="space-y-3 text-sm sm:text-base text-slate-700 mb-6">
+            <li>1. คลิกปุ่ม <strong>"ปรับแต่งตัวแปรข้อมูล"</strong> บนการ์ดแม่แบบ</li>
+            <li>2. กรอกข้อมูลจริงเฉพาะของงาน เช่น: <em>วันที่/เวลา, เลขที่รายการ, รหัสสาขา</em></li>
+            <li>3. ข้อความในกล่อง Prompt และตัวอย่างผลลัพธ์จะอัปเดตแทนที่คำทันที</li>
+            <li>4. แสดง <strong>แถบไฮไลต์สีเหลือง</strong> บนคำที่มีการแทนที่ เพื่อให้ตรวจสอบได้ง่าย</li>
+            <li>5. มีปุ่ม <strong>"รีเซ็ตค่าเดิม"</strong> (ไอคอนลูกศรหมุน) คืนค่าตั้งต้นได้ตลอดเวลา</li>
+          </ul>
+          <div class="p-4 bg-amber-50 rounded-2xl border border-amber-200 text-xs sm:text-sm text-amber-900 font-medium">
+            🔒 <strong>ข้อมูลปลอดภัย 100%:</strong> ค่าที่พิมพ์ในช่องตัวแปรจะอยู่ในเครื่องผู้ใช้เท่านั้น ไม่มีการส่งไปเก็บบนเซิร์ฟเวอร์ใดๆ
+          </div>
+        </div>
+      </div>
+      <div class="text-xs text-slate-400 text-right">ธนาคารเพื่อการเกษตรและสหกรณ์การเกษตร</div>
+    </section>
+
+    <!-- SLIDE 9: Step 5: Instant AI Preview -->
+    <section class="slide slide-aspect bg-white rounded-3xl p-8 sm:p-12 shadow-2xl relative overflow-hidden flex flex-col justify-between hidden" data-slide="9">
+      <div>
+        <div class="flex items-center justify-between mb-4 border-b border-slate-100 pb-3">
+          <span class="text-xs font-heading font-bold text-[#006838] tracking-wider uppercase">ขั้นตอนปฏิบัติการ • STEP 5</span>
+          <span class="text-xs font-mono text-slate-400">สไลด์ 09 / 15</span>
+        </div>
+        <h2 class="font-heading font-bold text-2xl sm:text-4xl text-[#064e2b] mb-6">Step 5: ตรวจดูตัวอย่างผลลัพธ์ AI ทันที (Instant Preview)</h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="p-6 bg-slate-50 rounded-2xl border border-slate-200">
+            <h3 class="font-heading font-bold text-[#006838] text-xl mb-3 flex items-center gap-2">
+              <span>👁️</span> ดูตัวอย่างคำตอบใน 1 คลิก
+            </h3>
+            <p class="text-sm text-slate-700 leading-relaxed mb-4">
+              คลิกแท็บ <strong>"ตัวอย่างคำตอบ AI (Expected Output Preview)"</strong> เพื่อตรวจสอบผลลัพธ์:
+            </p>
+            <ul class="space-y-2 text-xs sm:text-sm text-slate-600">
+              <li>• เห็นโครงสร้างคำตอบจริงของโมเดล AI ล่วงหน้า</li>
+              <li>• ตรวจสอบความถูกต้องและรูปแบบเอกสารก่อนสั่งการจริง</li>
+              <li>• ใช้งานได้แบบ Offline ไม่เปลืองโควตา API</li>
+            </ul>
+          </div>
+
+          <div class="p-6 bg-emerald-50/60 rounded-2xl border border-emerald-200">
+            <h3 class="font-heading font-bold text-[#064e2b] text-xl mb-3 flex items-center gap-2">
+              <span>📄</span> ตัวอย่างรูปแบบผลลัพธ์ที่ได้
+            </h3>
+            <ul class="space-y-2 text-xs sm:text-sm text-slate-700">
+              <li>✔ บันทึกข้อความราชการที่มีหัวเรื่องและข้อพิจารณาครบถ้วน</li>
+              <li>✔ ตารางเปรียบเทียบผลต่างการกระทบยอด หรือตาราง KPI</li>
+              <li>✔ ข้อความสื่อสารกับลูกค้าอย่างเป็นทางการตามระเบียบ ธปท.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="text-xs text-slate-400 text-right">ธนาคารเพื่อการเกษตรและสหกรณ์การเกษตร</div>
+    </section>
+
+    <!-- SLIDE 10: Step 6: 1-Tap Copy -->
+    <section class="slide slide-aspect bg-white rounded-3xl p-8 sm:p-12 shadow-2xl relative overflow-hidden flex flex-col justify-between hidden" data-slide="10">
+      <div>
+        <div class="flex items-center justify-between mb-4 border-b border-slate-100 pb-3">
+          <span class="text-xs font-heading font-bold text-[#006838] tracking-wider uppercase">ขั้นตอนปฏิบัติการ • STEP 6</span>
+          <span class="text-xs font-mono text-slate-400">สไลด์ 10 / 15</span>
+        </div>
+        <h2 class="font-heading font-bold text-2xl sm:text-4xl text-[#064e2b] mb-6">Step 6: การคัดลอกในสัมผัสเดียว (1-Tap Copy & Feedback)</h2>
+
+        <div class="p-6 bg-emerald-50/50 rounded-3xl border border-emerald-200">
+          <div class="flex items-center gap-4 mb-4">
+            <button class="bg-[#006838] text-white px-6 py-3 rounded-2xl font-heading font-bold text-base shadow-md">
+              📋 คัดลอก Prompt (48px Touch Target)
+            </button>
+            <span class="text-emerald-700 font-bold text-sm">✓ คัดลอกเรียบร้อยแล้ว!</span>
+          </div>
+
+          <ul class="space-y-3 text-sm sm:text-base text-slate-700 mb-4">
+            <li>• <strong>แตะ 1 ครั้ง:</strong> ข้อความทั้งหมดพร้อมตัวแปรที่ปรับแล้วจะถูกคัดลอกลง Clipboard ทันที</li>
+            <li>• <strong>ระบบแจ้งเตือน 3 มิติ:</strong> ปุ่มเปลี่ยนสีเขียวเข้ม + Toast Notification ลอยขึ้นมา + มือถือสั่นเตือน (Haptic)</li>
+            <li>• <strong>กลไก 2 ระดับ (Double Fallback):</strong> รองรับทั้ง iOS Safari, Android, Chrome และเปิดแบบ Local File</li>
+          </ul>
+
+          <div class="p-4 bg-white rounded-xl border border-emerald-200 text-sm text-slate-600">
+            🚀 <strong>ขั้นตอนถัดไป:</strong> เปิด Google Gemini (gemini.google.com) แล้วแตะวาง (Paste / Ctrl+V) กดส่งเพื่อรับคำตอบได้ทันที!
+          </div>
+        </div>
+      </div>
+      <div class="text-xs text-slate-400 text-right">ธนาคารเพื่อการเกษตรและสหกรณ์การเกษตร</div>
+    </section>
+
+    <!-- SLIDE 11: Case Study 1 -->
+    <section class="slide slide-aspect bg-white rounded-3xl p-8 sm:p-12 shadow-2xl relative overflow-hidden flex flex-col justify-between hidden" data-slide="11">
+      <div>
+        <div class="flex items-center justify-between mb-4 border-b border-slate-100 pb-3">
+          <span class="text-xs font-heading font-bold text-[#006838] tracking-wider uppercase">กรณีศึกษาจริง • USE CASE 1</span>
+          <span class="text-xs font-mono text-slate-400">สไลด์ 11 / 15</span>
+        </div>
+        <h2 class="font-heading font-bold text-2xl sm:text-4xl text-[#064e2b] mb-4">กรณีศึกษา 1: กลุ่มงานโอนเงินระหว่างธนาคาร (กลุ่ม 06)</h2>
+
+        <div class="p-5 bg-slate-50 rounded-2xl border border-slate-200 mb-4">
+          <strong class="text-slate-800 text-base font-heading block mb-1">สถานการณ์:</strong>
+          <p class="text-sm text-slate-600">รายการโอนเงินข้ามธนาคารขัดข้อง เงินตัดบัญชีลูกค้า ธ.ก.ส. แล้ว แต่ธนาคารปลายทางยังไม่ได้รับเงิน</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="p-4 bg-emerald-50 rounded-xl border border-emerald-200">
+            <h4 class="font-heading font-bold text-[#006838] text-sm mb-2">ขั้นตอนบน BAAC Prompt Hub:</h4>
+            <ol class="text-xs sm:text-sm text-slate-700 space-y-1 list-decimal list-inside">
+              <li>แตะชิป <code>06</code> เลือกแม่แบบงานประสาน ITMX</li>
+              <li>ปรับตัวแปร: เวลาโอนเงิน, ธนาคารปลายทาง, เลขอ้างอิง Masked</li>
+              <li>กดปุ่ม <strong>"คัดลอก Prompt"</strong></li>
+            </ol>
+          </div>
+          <div class="p-4 bg-blue-50 rounded-xl border border-blue-200">
+            <h4 class="font-heading font-bold text-blue-800 text-sm mb-2">ผลลัพธ์ที่ได้จาก AI:</h4>
+            <ul class="text-xs sm:text-sm text-slate-700 space-y-1">
+              <li>✔ หนังสือประสานงานแจ้ง ITMX และธนาคารคู่โอน</li>
+              <li>✔ สคริปต์ตอบลูกค้าทาง Call Center สุภาพ ถูกเกณฑ์ SLA ธปท. (คืนเงินภายใน 19:00 น. วันถัดไป)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="text-xs text-slate-400 text-right">ธนาคารเพื่อการเกษตรและสหกรณ์การเกษตร</div>
+    </section>
+
+    <!-- SLIDE 12: Case Study 2 -->
+    <section class="slide slide-aspect bg-white rounded-3xl p-8 sm:p-12 shadow-2xl relative overflow-hidden flex flex-col justify-between hidden" data-slide="12">
+      <div>
+        <div class="flex items-center justify-between mb-4 border-b border-slate-100 pb-3">
+          <span class="text-xs font-heading font-bold text-[#006838] tracking-wider uppercase">กรณีศึกษาจริง • USE CASE 2</span>
+          <span class="text-xs font-mono text-slate-400">สไลด์ 12 / 15</span>
+        </div>
+        <h2 class="font-heading font-bold text-2xl sm:text-4xl text-[#064e2b] mb-4">กรณีศึกษา 2: กลุ่มงานกระทบยอดเงินสด ATM/CDM (กลุ่ม 09)</h2>
+
+        <div class="p-5 bg-slate-50 rounded-2xl border border-slate-200 mb-4">
+          <strong class="text-slate-800 text-base font-heading block mb-1">สถานการณ์:</strong>
+          <p class="text-sm text-slate-600">กระทบยอดเงินสดตู้ ATM ประจำวัน พบยอดเงินเกินในกล่องรับฝาก CDM และมีข้อร้องเรียน VOC จากลูกค้า</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="p-4 bg-emerald-50 rounded-xl border border-emerald-200">
+            <h4 class="font-heading font-bold text-[#006838] text-sm mb-2">ขั้นตอนบน BAAC Prompt Hub:</h4>
+            <ol class="text-xs sm:text-sm text-slate-700 space-y-1 list-decimal list-inside">
+              <li>ค้นหาคำว่า <code>ATM</code> หรือ <code>VOC</code></li>
+              <li>เลือกแม่แบบตรวจพิสูจน์เงินสดและปรับปรุงบัญชี</li>
+              <li>ปรับตัวแปร: รหัสตู้ ATM, วันที่, ยอดเงินส่วนต่าง</li>
+            </ol>
+          </div>
+          <div class="p-4 bg-amber-50 rounded-xl border border-amber-200">
+            <h4 class="font-heading font-bold text-amber-800 text-sm mb-2">ผลลัพธ์ที่ได้จาก AI:</h4>
+            <ul class="text-xs sm:text-sm text-slate-700 space-y-1">
+              <li>✔ ตารางเปรียบเทียบ Journal Log vs ยอดนับจริง</li>
+              <li>✔ ร่างบันทึกข้อความขออนุมัติปรับปรุงบัญชีคืนเงินลูกค้า</li>
+              <li>✔ คำแนะนำเชิงป้องกันสำหรับผู้จัดการสาขา</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="text-xs text-slate-400 text-right">ธนาคารเพื่อการเกษตรและสหกรณ์การเกษตร</div>
+    </section>
+
+    <!-- SLIDE 13: PDPA & Data Masking -->
+    <section class="slide slide-aspect bg-white rounded-3xl p-8 sm:p-12 shadow-2xl relative overflow-hidden flex flex-col justify-between hidden" data-slide="13">
+      <div>
+        <div class="flex items-center justify-between mb-4 border-b border-slate-100 pb-3">
+          <span class="text-xs font-heading font-bold text-rose-700 tracking-wider uppercase">ความปลอดภัย • SECURITY & PDPA</span>
+          <span class="text-xs font-mono text-slate-400">สไลด์ 13 / 15</span>
+        </div>
+        <h2 class="font-heading font-bold text-2xl sm:text-4xl text-rose-800 mb-6">กฎเหล็กความปลอดภัยข้อมูล และการทำ Data Masking</h2>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-xs sm:text-sm text-left border border-slate-200 rounded-xl overflow-hidden">
+            <thead class="bg-[#006838] text-white font-heading">
+              <tr>
+                <th class="p-3">ประเภทข้อมูล</th>
+                <th class="p-3">ข้อมูลจริง (ห้ามป้อนเด็ดขาด ❌)</th>
+                <th class="p-3">การแปลงข้อมูลที่ถูกต้อง (Masked Data ✔)</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-200 text-slate-700">
+              <tr>
+                <td class="p-3 font-semibold">ชื่อ-นามสกุลลูกค้า</td>
+                <td class="p-3 text-rose-600 font-medium">นายสมชาย เกษตรก้าวหน้า</td>
+                <td class="p-3 text-emerald-700 font-bold">ลูกค้าบุคคลธรรมดา รายที่ 1 / นาย ส.</td>
+              </tr>
+              <tr class="bg-slate-50">
+                <td class="p-3 font-semibold">เลขบัตรประชาชน</td>
+                <td class="p-3 text-rose-600 font-medium">1-1004-99887-12-3</td>
+                <td class="p-3 text-emerald-700 font-bold">1-XXXX-XXXXX-12-3 หรือ [เลขบัตร ปชช.]</td>
+              </tr>
+              <tr>
+                <td class="p-3 font-semibold">เลขบัญชีเงินฝาก</td>
+                <td class="p-3 text-rose-600 font-medium">020-1-2345678-9</td>
+                <td class="p-3 text-emerald-700 font-bold">020-X-XXXXX78-9 หรือ [เลขบัญชีลูกค้า]</td>
+              </tr>
+              <tr class="bg-slate-50">
+                <td class="p-3 font-semibold">รหัสผ่าน / PIN / OTP</td>
+                <td class="p-3 text-rose-600 font-bold">ห้ามใส่ทุกกรณี 100%!</td>
+                <td class="p-3 text-slate-500">ตัดทิ้งออกจากข้อความโดยสิ้นเชิง</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="text-xs text-slate-400 text-right">ธนาคารเพื่อการเกษตรและสหกรณ์การเกษตร</div>
+    </section>
+
+    <!-- SLIDE 14: All 11 Departments -->
+    <section class="slide slide-aspect bg-white rounded-3xl p-8 sm:p-12 shadow-2xl relative overflow-hidden flex flex-col justify-between hidden" data-slide="14">
+      <div>
+        <div class="flex items-center justify-between mb-4 border-b border-slate-100 pb-3">
+          <span class="text-xs font-heading font-bold text-[#006838] tracking-wider uppercase">สรุปภารกิจ • 11 DEPARTMENTS</span>
+          <span class="text-xs font-mono text-slate-400">สไลด์ 14 / 15</span>
+        </div>
+        <h2 class="font-heading font-bold text-2xl sm:text-4xl text-[#064e2b] mb-4">สรุปครอบคลุมภารกิจ 11 กลุ่มงาน สำนักธุรกรรมการเงิน</h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs sm:text-sm">
+          <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-1.5">
+            <p><strong>01:</strong> กลุ่มงานนโยบายและแผน</p>
+            <p><strong>02:</strong> กลุ่มงานพัฒนาระบบสนับสนุนด้านการเงินฯ</p>
+            <p><strong>03:</strong> กลุ่มงานปฏิบัติและกำกับงานการธนาคาร</p>
+            <p><strong>04:</strong> กลุ่มงานบริหารจัดการเงินสดสาขา</p>
+            <p><strong>05:</strong> กลุ่มงานปฏิบัติการโอนเงินระหว่างสาขา (SPIN)</p>
+            <p><strong>06:</strong> กลุ่มงานปฏิบัติการโอนเงินระหว่างธนาคาร (ITMX)</p>
+          </div>
+          <div class="p-4 bg-emerald-50/70 rounded-2xl border border-emerald-200 space-y-1.5">
+            <p><strong>07:</strong> กลุ่มงานปฏิบัติการเรียกเก็บเช็ค (ICAS)</p>
+            <p><strong>08:</strong> กลุ่มงานตรวจพิสูจน์และชำระดุล</p>
+            <p><strong>09:</strong> กลุ่มงานตรวจพิสูจน์และกระทบยอดเงินสด ATM/CDM</p>
+            <p><strong>10:</strong> กลุ่มงานบริหาร Banking Agent</p>
+            <p><strong>11:</strong> กลุ่มงานบริหารจัดการเงินสด ATM นอกสำนักงาน</p>
+            <p class="text-[#006838] font-bold pt-2">✨ แม่แบบทุกกลุ่มงานพร้อมใช้งานบนระบบแล้ว 100%</p>
+          </div>
+        </div>
+      </div>
+      <div class="text-xs text-slate-400 text-right">ธนาคารเพื่อการเกษตรและสหกรณ์การเกษตร</div>
+    </section>
+
+    <!-- SLIDE 15: 4-Step Summary & Q&A -->
+    <section class="slide slide-aspect bg-[#064e2b] text-white rounded-3xl p-8 sm:p-12 shadow-2xl relative overflow-hidden flex flex-col justify-between hidden" data-slide="15">
+      <div>
+        <div class="flex items-center justify-between mb-4 border-b border-emerald-700/60 pb-3">
+          <span class="text-xs font-heading font-bold text-amber-400 tracking-wider uppercase">สรุปผลการอบรม • SUMMARY & Q&A</span>
+          <span class="text-xs font-mono text-emerald-300">สไลด์ 15 / 15</span>
+        </div>
+        <h2 class="font-heading font-bold text-2xl sm:text-4xl text-white mb-6">สรุป 4 จังหวะในการใช้งาน & ช่วงถาม-ตอบ (Q&A)</h2>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+          <div class="p-4 bg-emerald-800/80 rounded-2xl border border-emerald-500/40 text-center">
+            <span class="text-amber-300 text-3xl font-heading font-bold block mb-1">1</span>
+            <strong class="font-heading text-white text-base block mb-1">เลือก (Select)</strong>
+            <p class="text-xs text-emerald-200">เลือกชิปกลุ่มงาน 01-11 หรือค้นหาคำสำคัญ</p>
+          </div>
+          <div class="p-4 bg-emerald-800/80 rounded-2xl border border-emerald-500/40 text-center">
+            <span class="text-amber-300 text-3xl font-heading font-bold block mb-1">2</span>
+            <strong class="font-heading text-white text-base block mb-1">ปรับ (Adjust)</strong>
+            <p class="text-xs text-emerald-200">ระบุข้อมูลตัวแปรเฉพาะของงานจริง</p>
+          </div>
+          <div class="p-4 bg-emerald-800/80 rounded-2xl border border-emerald-500/40 text-center">
+            <span class="text-amber-300 text-3xl font-heading font-bold block mb-1">3</span>
+            <strong class="font-heading text-white text-base block mb-1">ส่อง (Preview)</strong>
+            <p class="text-xs text-emerald-200">ดูตัวอย่างคำตอบ AI เพื่อตรวจสอบ</p>
+          </div>
+          <div class="p-4 bg-emerald-800/80 rounded-2xl border border-emerald-500/40 text-center">
+            <span class="text-amber-300 text-3xl font-heading font-bold block mb-1">4</span>
+            <strong class="font-heading text-white text-base block mb-1">คัดลอก (Copy)</strong>
+            <p class="text-xs text-emerald-200">กด 1-Tap Copy นำไป Paste ลง Gemini</p>
+          </div>
+        </div>
+
+        <div class="p-5 bg-emerald-900/90 rounded-2xl border border-amber-400/40">
+          <h4 class="font-heading font-bold text-amber-300 text-base mb-1">💬 ช่วงถาม-ตอบ (Q&A) และข้อเสนอแนะ</h4>
+          <p class="text-xs sm:text-sm text-emerald-100 leading-relaxed">
+            สามารถนำ Prompt Hub ไปใช้ในงานจริงได้ตั้งแต่วันนี้ที่: <strong>https://cheeptham333.github.io/baac-prompt-hub/</strong><br>
+            ขอขอบคุณผู้เข้าอบรมทุกท่านจากใจ สำนักธุรกรรมการเงิน ธ.ก.ส.
+          </p>
+        </div>
+      </div>
+      <div class="text-xs text-emerald-300 text-right">ธนาคารเพื่อการเกษตรและสหกรณ์การเกษตร</div>
+    </section>
+
+  </main>
+
+  <!-- Bottom Navigation & Controls -->
+  <footer class="no-print w-full max-w-[1120px] bg-slate-800/95 backdrop-blur-md rounded-2xl p-3 sm:px-6 mt-4 flex items-center justify-between gap-4 text-white shadow-xl border border-slate-700">
+    <div class="flex items-center gap-2">
+      <button onclick="prevSlide()" class="p-2.5 bg-slate-700 hover:bg-slate-600 rounded-xl transition">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+      </button>
+      <span id="slide-indicator" class="font-heading font-bold text-sm px-3 text-emerald-400">1 / 15</span>
+      <button onclick="nextSlide()" class="p-2.5 bg-slate-700 hover:bg-slate-600 rounded-xl transition">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+
+    <!-- Speaker Notes Drawer (Shown in Speaker Mode) -->
+    <div id="speaker-notes-box" class="hidden flex-1 mx-4 p-2 bg-slate-900 rounded-xl border border-amber-500/40 text-xs text-amber-200">
+      <div class="font-heading font-bold text-amber-400 flex items-center gap-1 mb-1">
+        <span>🎙️</span> โน้ตผู้บรรยาย (Speaker Notes):
+      </div>
+      <p id="speaker-notes-text" class="text-slate-300"></p>
+    </div>
+
+    <div class="flex items-center gap-2 text-xs text-slate-400 font-heading">
+      <span>กดแป้นพิมพ์ ← → หรือ Spacebar เพื่อเลื่อนสไลด์</span>
+    </div>
+  </footer>
+
+  <script>
+    const totalSlides = 15;
+    let currentSlide = 1;
+    let showNotes = false;
+
+    const notes = {
+      1: "สวัสดีผู้เข้าอบรมทุกท่านครับ วันนี้เราจะมาเรียนรู้การใช้งานระบบ 'BAAC Prompt Hub' สำหรับ 11 กลุ่มงาน สำนักธุรกรรมการเงิน ธ.ก.ส.",
+      2: "เน้นย้ำจุดเด่น Zero-API ที่ทำให้ข้อมูลของธนาคารไม่รั่วไหล และปุ่ม Instant Preview ที่ช่วยให้ผู้เรียนเห็นตัวอย่างคำตอบก่อนยิง Prompt จริง",
+      3: "สำหรับวิทยากร แนะนำให้กดปุ่ม 'QR Code ห้องเรียน' แล้วกดขยายเต็มจอ เพื่อให้ผู้เรียน 150 คนยกมือถือขึ้นมาสแกนพร้อมกันได้ทันที",
+      4: "โครงสร้างหน้าจอถูกออกแบบให้เข้าใจง่ายใน 2 นาที ประกอบด้วยส่วนหัว, แถบค้นหา, ชิปกลุ่มงาน 01-11 และการ์ดแม่แบบ Prompt",
+      5: "ให้ผู้เรียนทดลองแตะเลือกชิปรหัสกลุ่มงานของตนเอง หรือลองพิมพ์คำว่า 'ATM' หรือ 'SPIN' ในช่องค้นหา",
+      6: "อธิบายว่าตัวกรองประเภทงาน 5 หมวด ช่วยให้คัดแยกเฉพาะงานที่กำลังทำ เช่น งานร่างบันทึกข้อความ หรือตรวจสอบกระทบยอด",
+      7: "อธิบายโครงสร้าง RTF Framework (Role-Task-Format) ซึ่งเป็นหัวใจสำคัญของการเขียน Prompt ระดับมืออาชีพ",
+      8: "สาธิตการพิมพ์แก้ตัวแปรในช่อง Input และชี้ให้ดูว่าข้อความในการ์ดเปลี่ยนตามสดๆ ทันที พร้อมไฮไลต์สีเหลือง",
+      9: "ให้ผู้เรียนลองสลับแท็บ 'ตัวอย่างคำตอบ AI' เพื่อดูตัวอย่างรายงานจริง ช่วยสร้างความมั่นใจก่อนนำไปใช้งาน",
+      10: "ให้ผู้เรียนกดปุ่มคัดลอกบนมือถือ และสังเกตการสั่นเตือน (Haptic) จากนั้นลองสลับหน้าจอไปที่ Google Gemini เพื่อแตะวางข้อความ",
+      11: "ยกตัวอย่างกรณีศึกษาจริงกลุ่ม 06: Prompt ตัวเดียวได้ทั้งเอกสารประสาน ITMX และสคริปต์ตอบลูกค้า Call Center ตาม SLA ธปท.",
+      12: "ยกตัวอย่างงานกลุ่ม 09: การใช้ Prompt ช่วยคำนวณและทำตารางกระทบยอดเงินสด ATM/CDM ช่วยลดเวลาและข้อผิดพลาดได้มาก",
+      13: "เน้นย้ำเรื่อง PDPA และกฎเหล็ก 4 ข้อ: ห้ามใส่ชื่อจริง เลขบัตร ปชช. และเลขบัญชีเต็มลงใน AI ภายนอกเด็ดขาด",
+      14: "สรุปภาพรวมว่าทุกกลุ่มงานของสำนักธุรกรรมการเงินมีแม่แบบของตนเองพร้อมใช้งานแล้ว 100%",
+      15: "สรุปหลัก 4 จังหวะ: 'เลือก - ปรับ - ส่อง - คัดลอก' และเปิดรับคำถามข้อสงสัยจากผู้เข้าอบรม"
+    };
+
+    function updateSlide() {
+      document.querySelectorAll('.slide').forEach((el, idx) => {
+        if (idx + 1 === currentSlide) {
+          el.classList.remove('hidden');
+        } else {
+          el.classList.add('hidden');
+        }
+      });
+      document.getElementById('slide-indicator').innerText = `${currentSlide} / ${totalSlides}`;
+      document.getElementById('speaker-notes-text').innerText = notes[currentSlide] || "ไม่มีโน้ตสำหรับสไลด์นี้";
+    }
+
+    function nextSlide() {
+      if (currentSlide < totalSlides) {
+        currentSlide++;
+        updateSlide();
+      }
+    }
+
+    function prevSlide() {
+      if (currentSlide > 1) {
+        currentSlide--;
+        updateSlide();
+      }
+    }
+
+    function toggleSpeakerNotes() {
+      showNotes = !showNotes;
+      const box = document.getElementById('speaker-notes-box');
+      const btn = document.getElementById('btn-notes');
+      if (showNotes) {
+        box.classList.remove('hidden');
+        btn.classList.add('bg-amber-600', 'text-white');
+      } else {
+        box.classList.add('hidden');
+        btn.classList.remove('bg-amber-600', 'text-white');
+      }
+    }
+
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => alert("ไม่สามารถเข้าสู่โหมดเต็มจอได้"));
+      } else {
+        document.exitFullscreen();
+      }
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+        nextSlide();
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        prevSlide();
+      } else if (e.key.toLowerCase() === 's') {
+        toggleSpeakerNotes();
+      } else if (e.key.toLowerCase() === 'f') {
+        toggleFullscreen();
+      }
+    });
+
+    // Initialize first slide
+    updateSlide();
+  </script>
+</body>
+</html>

@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>คู่มือการใช้งานระบบคลังแม่แบบ Prompt Engineering ธ.ก.ส. (11 กลุ่มงาน)</title>
+  <!-- Google Fonts: Prompt & Sarabun -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      font-family: 'Sarabun', sans-serif;
+      color: #1e293b;
+      background-color: #f1f5f9;
+      line-height: 1.7;
+    }
+    h1, h2, h3, h4, .font-heading {
+      font-family: 'Prompt', sans-serif;
+    }
+    @media print {
+      .no-print {
+        display: none !important;
+      }
+      body {
+        background: white !important;
+        color: black !important;
+        font-size: 13pt;
+      }
+      .page-break {
+        page-break-before: always;
+      }
+      .manual-container {
+        max-width: 100% !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+    }
+    .baac-gradient {
+      background: linear-gradient(135deg, #006838 0%, #064e2b 100%);
+    }
+    .step-badge {
+      width: 36px;
+      height: 36px;
+      border-radius: 9999px;
+      background-color: #006838;
+      color: white;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-family: 'Prompt', sans-serif;
+      flex-shrink: 0;
+    }
+  </style>
+</head>
+<body class="py-8 px-4 sm:px-6 lg:px-8">
+
+  <!-- Top Fixed Action Bar -->
+  <div class="no-print max-w-5xl mx-auto mb-6 bg-white rounded-2xl shadow-md p-4 flex flex-wrap items-center justify-between gap-4 border border-emerald-100">
+    <div class="flex items-center gap-3">
+      <span class="text-2xl">🌾</span>
+      <div>
+        <h2 class="font-heading font-bold text-slate-800 text-lg">คู่มือฉบับทางการ สำนักธุรกรรมการเงิน ธ.ก.ส.</h2>
+        <p class="text-xs text-slate-500">ระบบคลังแม่แบบ Prompt Engineering (11 กลุ่มงาน)</p>
+      </div>
+    </div>
+    <div class="flex flex-wrap items-center gap-3">
+      <button onclick="window.print()" class="inline-flex items-center gap-2 bg-[#006838] hover:bg-[#064e2b] text-white px-5 py-2.5 rounded-xl font-heading font-medium text-sm shadow-sm transition-all">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+        พิมพ์เป็น PDF / บันทึก PDF
+      </button>
+      <a href="BAAC_Prompt_Hub_Manual.docx" download class="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2.5 rounded-xl font-heading font-medium text-sm shadow-sm transition-all">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+        ดาวน์โหลด Word (.docx)
+      </a>
+      <a href="https://cheeptham333.github.io/baac-prompt-hub/" target="_blank" class="inline-flex items-center gap-2 bg-emerald-50 hover:bg-emerald-100 text-[#006838] border border-emerald-200 px-4 py-2.5 rounded-xl font-heading font-medium text-sm transition-all">
+        เปิดเว็บระบบจริง ↗
+      </a>
+    </div>
+  </div>
+
+  <!-- Main Document Container -->
+  <main class="manual-container max-w-5xl mx-auto bg-white rounded-3xl shadow-xl border border-slate-200 overflow-hidden p-8 sm:p-12 lg:p-16">
+
+    <!-- Document Header / Cover -->
+    <header class="baac-gradient text-white rounded-2xl p-8 sm:p-10 mb-12 relative overflow-hidden shadow-lg">
+      <div class="relative z-10">
+        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-800/80 text-emerald-200 text-xs font-heading font-semibold mb-4 border border-emerald-600">
+          <span>🌾 ธนาคารเพื่อการเกษตรและสหกรณ์การเกษตร</span>
+          <span>•</span>
+          <span>สำนักธุรกรรมการเงิน</span>
+        </div>
+        <h1 class="text-3xl sm:text-4xl font-bold font-heading mb-3 tracking-tight">คู่มือการใช้งานระบบคลังแม่แบบ Prompt Engineering</h1>
+        <p class="text-emerald-100 text-base sm:text-lg max-w-3xl leading-relaxed">
+          คู่มือการใช้งานระบบทีละขั้นตอน (Step-by-Step Training Manual) เพื่อเสริมสร้างทักษะการประยุกต์ใช้ AI สำหรับพนักงานทั้ง 11 กลุ่มงาน
+        </p>
+        <div class="mt-6 flex flex-wrap items-center gap-4 text-xs sm:text-sm text-emerald-200">
+          <span>🌐 URL: https://cheeptham333.github.io/baac-prompt-hub/</span>
+          <span>•</span>
+          <span>🛡️ สถาปัตยกรรม Zero-API ปลอดภัย 100%</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Table of Contents -->
+    <section class="bg-emerald-50/60 rounded-2xl p-6 mb-12 border border-emerald-100">
+      <h2 class="text-lg font-heading font-bold text-[#006838] mb-4 flex items-center gap-2">
+        <span>📑</span> สารบัญเนื้อหาในคู่มือ
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm text-slate-700">
+        <a href="#ch1" class="hover:text-[#006838] flex items-center gap-2"><strong>บทที่ 1:</strong> บทนำและวัตถุประสงค์ของระบบ</a>
+        <a href="#ch2" class="hover:text-[#006838] flex items-center gap-2"><strong>บทที่ 2:</strong> การเข้าใช้งานและ Classroom QR Code</a>
+        <a href="#ch3" class="hover:text-[#006838] flex items-center gap-2"><strong>บทที่ 3:</strong> โครงสร้างหน้าจอและส่วนประกอบหลัก</a>
+        <a href="#ch4" class="hover:text-[#006838] flex items-center gap-2"><strong>บทที่ 4:</strong> ขั้นตอนการใช้งาน 6 ขั้นตอน (Step-by-Step)</a>
+        <a href="#ch5" class="hover:text-[#006838] flex items-center gap-2"><strong>บทที่ 5:</strong> ตัวอย่างการใช้งานจริงตามภารกิจกลุ่มงาน</a>
+        <a href="#ch6" class="hover:text-[#006838] flex items-center gap-2"><strong>บทที่ 6:</strong> กฎความปลอดภัยข้อมูลและการทำ Data Masking</a>
+        <a href="#ch7" class="hover:text-[#006838] flex items-center gap-2"><strong>บทที่ 7:</strong> คำถามที่พบบ่อย (FAQ)</a>
+      </div>
+    </section>
+
+    <!-- Chapter 1 -->
+    <section id="ch1" class="mb-14">
+      <h2 class="text-2xl font-heading font-bold text-slate-800 pb-3 border-b-2 border-emerald-200 mb-6 flex items-center gap-3">
+        <span class="text-[#006838]">บทที่ 1:</span> บทนำและวัตถุประสงค์ของระบบ
+      </h2>
+      <p class="text-slate-700 mb-6 leading-relaxed">
+        <strong>ระบบคลังแม่แบบ Prompt Engineering ธ.ก.ส. (BAAC Prompt Hub)</strong> ได้รับการพัฒนาขึ้นเพื่อเป็นเครื่องมือกลางสำหรับสนับสนุนการทำงานและเป็นสื่อการเรียนรู้เชิงปฏิบัติการสำหรับบุคลากรของ <strong>สำนักธุรกรรมการเงิน</strong> ครบทั้ง 11 กลุ่มงาน เพื่อให้สามารถนำ Generative AI ไปช่วยเพิ่มผลผลิตในงานเอกสาร การวิเคราะห์ และการตรวจสอบได้อย่างถูกต้อง ปลอดภัย และมีมาตรฐานเดียวกัน
+      </p>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
+        <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200">
+          <div class="w-10 h-10 rounded-xl bg-emerald-100 text-[#006838] flex items-center justify-center font-bold mb-3">🛡️</div>
+          <h3 class="font-heading font-bold text-slate-800 mb-2">Zero-API 100%</h3>
+          <p class="text-xs text-slate-600 leading-relaxed">ไม่ต้องขอ API Key และไม่มีการส่งข้อมูลออกนอกเครื่อง ประมวลผลบนเบราว์เซอร์ปลอดภัยสูงสุดตามหลัก PDPA</p>
+        </div>
+        <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200">
+          <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center font-bold mb-3">👁️</div>
+          <h3 class="font-heading font-bold text-slate-800 mb-2">Instant AI Preview</h3>
+          <p class="text-xs text-slate-600 leading-relaxed">มีแท็บตัวอย่างผลลัพธ์ที่ AI ตอบให้เห็นทันที ช่วยให้ผู้เรียนเข้าใจแนวทางคำตอบก่อนนำไปใช้งานจริง</p>
+        </div>
+        <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200">
+          <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center font-bold mb-3">📱</div>
+          <h3 class="font-heading font-bold text-slate-800 mb-2">Mobile-First Touch</h3>
+          <p class="text-xs text-slate-600 leading-relaxed">ปุ่มคัดลอกใหญ่พิเศษ 48px พร้อม Haptic Feedback สั่นเตือน คัดลอกแม่นยำทุกอุปกรณ์</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Chapter 2 -->
+    <section id="ch2" class="mb-14">
+      <h2 class="text-2xl font-heading font-bold text-slate-800 pb-3 border-b-2 border-emerald-200 mb-6 flex items-center gap-3">
+        <span class="text-[#006838]">บทที่ 2:</span> การเข้าใช้งานและระบบ Classroom QR Code
+      </h2>
+      <div class="bg-emerald-50 rounded-2xl p-6 border border-emerald-200 mb-6">
+        <h3 class="font-heading font-bold text-[#006838] text-base mb-2">🌐 ลิงก์เข้าใช้งานระบบ</h3>
+        <p class="text-slate-800 font-mono text-sm break-all select-all bg-white p-3 rounded-xl border border-emerald-200 mb-3">
+          https://cheeptham333.github.io/baac-prompt-hub/
+        </p>
+        <p class="text-xs text-slate-600">สามารถเปิดผ่านเบราว์เซอร์ Google Chrome, Safari, Microsoft Edge ได้ทันทีทั้งบนคอมพิวเตอร์และมือถือ</p>
+      </div>
+
+      <div class="border border-slate-200 rounded-2xl p-6 bg-slate-50">
+        <h3 class="font-heading font-bold text-slate-800 text-lg mb-3 flex items-center gap-2">
+          <span>📲</span> ฟังก์ชัน Classroom QR Code สำหรับห้องอบรม (ผู้เรียน 150 คน)
+        </h3>
+        <p class="text-sm text-slate-700 mb-4 leading-relaxed">
+          ในห้องฝึกอบรม วิทยากรสามารถกดปุ่ม <strong>"QR Code ห้องเรียน"</strong> ที่มุมขวาบนของหน้าเว็บ เพื่อเปิดหน้าต่างฉายคิวอาร์โค้ดขึ้นจอโปรเจกเตอร์:
+        </p>
+        <ul class="space-y-2 text-sm text-slate-600">
+          <li class="flex items-start gap-2">
+            <span class="text-[#006838] font-bold">✔</span>
+            <span><strong>ปุ่มขยายเต็มจอฉาย (Enlarge for Projector):</strong> ขยายคิวอาร์โค้ดเต็มจอห้องสัมมนา ผู้เรียนแถวหลัง 15–20 เมตรสแกนติดง่าย</span>
+          </li>
+          <li class="flex items-start gap-2">
+            <span class="text-[#006838] font-bold">✔</span>
+            <span><strong>โหมดขาว-ดำ คมชัดสูง (High-Contrast):</strong> ปรับพื้นหลังขาวและเส้นดำสนิท ตัดแสงไฟสะท้อนบนจอโปรเจกเตอร์</span>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Chapter 3 & 4 (Step-by-Step) -->
+    <section id="ch4" class="mb-14">
+      <h2 class="text-2xl font-heading font-bold text-slate-800 pb-3 border-b-2 border-emerald-200 mb-8 flex items-center gap-3">
+        <span class="text-[#006838]">บทที่ 3:</span> คู่มือการใช้งาน 6 ขั้นตอน (Step-by-Step)
+      </h2>
+
+      <!-- Step 1 -->
+      <div class="flex gap-5 mb-10">
+        <div class="step-badge text-lg">1</div>
+        <div class="flex-1">
+          <h3 class="text-xl font-heading font-bold text-slate-800 mb-2">เลือกกลุ่มงาน หรือค้นหาคำสำคัญ</h3>
+          <p class="text-slate-700 text-sm mb-4 leading-relaxed">
+            ผู้ใช้งานสามารถเลือกเข้าถึงแม่แบบของตนเองได้ 2 วิธี:
+          </p>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
+              <strong class="font-heading text-[#006838] block mb-1">ก) กดชิปกลุ่มงาน (Pills 01 - 11)</strong>
+              แตะที่แถบชิปเลื่อนด้านบน เลือกรหัสกลุ่มงาน เช่น <code>06</code> (โอนเงินระหว่างธนาคาร) หรือ <code>09</code> (กระทบยอด ATM)
+            </div>
+            <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
+              <strong class="font-heading text-[#006838] block mb-1">ข) ค้นหาด้วยคำศัพท์งาน (Smart Search)</strong>
+              พิมพ์คำ เช่น <code>SPIN</code>, <code>เช็คคืน</code>, <code>ATM</code>, <code>VOC</code>, <code>ภาษี</code> ในช่องค้นหา ระบบจะกรองแม่แบบที่ตรงทันที
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="flex gap-5 mb-10">
+        <div class="step-badge text-lg">2</div>
+        <div class="flex-1">
+          <h3 class="text-xl font-heading font-bold text-slate-800 mb-2">กรองตามหมวดหมู่ประเภทงาน</h3>
+          <p class="text-slate-700 text-sm mb-3">
+            คลิกเมนู Dropdown <strong>"ทุกประเภทงาน"</strong> เพื่อจำกัดการแสดงผลเฉพาะภารกิจที่กำลังทำ:
+          </p>
+          <div class="flex flex-wrap gap-2 text-xs">
+            <span class="px-3 py-1 bg-emerald-100 text-emerald-800 font-semibold rounded-lg">วิเคราะห์ & สรุปข้อมูล</span>
+            <span class="px-3 py-1 bg-blue-100 text-blue-800 font-semibold rounded-lg">ร่างเอกสาร & หนังสือราชการ/สื่อสาร</span>
+            <span class="px-3 py-1 bg-purple-100 text-purple-800 font-semibold rounded-lg">กระทบยอด & ตรวจสอบความถูกต้อง</span>
+            <span class="px-3 py-1 bg-amber-100 text-amber-800 font-semibold rounded-lg">ตอบข้อร้องเรียน VOC & บริการลูกค้า</span>
+            <span class="px-3 py-1 bg-rose-100 text-rose-800 font-semibold rounded-lg">วางแผน & เกณฑ์มาตรฐานงาน (SOP)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="flex gap-5 mb-10">
+        <div class="step-badge text-lg">3</div>
+        <div class="flex-1">
+          <h3 class="text-xl font-heading font-bold text-slate-800 mb-2">ทำความเข้าใจโครงสร้างการ์ดแม่แบบ</h3>
+          <p class="text-slate-700 text-sm mb-4 leading-relaxed">
+            การ์ดแต่ละใบมีส่วนประกอบที่ชัดเจน ออกแบบตามโครงสร้าง <strong>RTF (Role, Task, Format)</strong> ซึ่งเป็นมาตรฐานสากลของการเขียน Prompt:
+          </p>
+          <div class="bg-slate-900 text-slate-100 p-5 rounded-2xl text-xs font-mono mb-4 leading-relaxed">
+            <span class="text-emerald-400 font-bold">[Role]:</span> คุณคือผู้เชี่ยวชาญด้านงานโอนเงินระหว่างธนาคาร ธ.ก.ส...<br>
+            <span class="text-amber-300 font-bold">[Task]:</span> หน้าที่ของคุณคือร่างเอกสารแจ้ง ITMX และร่างข้อความชี้แจงลูกค้า...<br>
+            <span class="text-sky-300 font-bold">[Format]:</span> กรุณาจัดทำในรูปแบบตารางสรุปรายการ และสคริปต์ตอบลูกค้าอย่างเป็นทางการ...
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="flex gap-5 mb-10">
+        <div class="step-badge text-lg">4</div>
+        <div class="flex-1">
+          <h3 class="text-xl font-heading font-bold text-slate-800 mb-2">ปรับแต่งตัวแปรข้อมูล (Dynamic Variables)</h3>
+          <p class="text-slate-700 text-sm mb-4 leading-relaxed">
+            คลิกปุ่ม <strong>"ปรับแต่งตัวแปรข้อมูล"</strong> บนการ์ด จะปรากฏกล่องข้อความให้ระบุข้อมูลจริง เช่น วันที่, เลขที่รายการ, หรือข้อความปัญหา:
+          </p>
+          <div class="p-4 bg-amber-50 rounded-2xl border border-amber-200 text-sm text-slate-800">
+            <strong>💡 ไฮไลต์การทำงาน:</strong> เมื่อพิมพ์แก้ข้อความในช่องตัวแปร ข้อความในกล่อง Prompt และตัวอย่างผลลัพธ์จะอัปเดตแทนที่แบบ Real-time ทันที พร้อมแสดงแถบสีเหลืองแจ้งเตือนจุดที่มีการปรับแต่ง
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 5 -->
+      <div class="flex gap-5 mb-10">
+        <div class="step-badge text-lg">5</div>
+        <div class="flex-1">
+          <h3 class="text-xl font-heading font-bold text-slate-800 mb-2">ตรวจดูตัวอย่างคำตอบ AI ทันที (Instant Output Preview)</h3>
+          <p class="text-slate-700 text-sm mb-4 leading-relaxed">
+            สลับไปที่แท็บ <strong>"ตัวอย่างคำตอบ AI"</strong> เพื่อดูรูปแบบการตอบจริงของโมเดล AI ช่วยให้ผู้ปฏิบัติงานเห็นแนวทางคำตอบล่วงหน้า สามารถตรวจสอบความถูกต้องและรูปแบบเอกสารก่อนนำ Prompt ไปยิงจริง
+          </p>
+        </div>
+      </div>
+
+      <!-- Step 6 -->
+      <div class="flex gap-5 mb-10">
+        <div class="step-badge text-lg">6</div>
+        <div class="flex-1">
+          <h3 class="text-xl font-heading font-bold text-slate-800 mb-2">กดปุ่มคัดลอกในสัมผัสเดียว (1-Tap Copy)</h3>
+          <p class="text-slate-700 text-sm mb-4 leading-relaxed">
+            กดปุ่มสีเขียวขนาดใหญ่ <strong>"คัดลอก Prompt"</strong> (หรือ คัดลอกตัวอย่างคำตอบ):
+          </p>
+          <ul class="space-y-2 text-sm text-slate-600 mb-4">
+            <li>• ปุ่มจะเปลี่ยนเป็นสีเขียวเข้มพร้อมเครื่องหมาย <code class="text-[#006838] font-bold">✓ คัดลอกเรียบร้อยแล้ว!</code></li>
+            <li>• มีป้ายแจ้งเตือนสีเขียวปรากฏขึ้นด้านล่างของจอ และมือถือจะสั่นยืนยัน (Haptic Feedback)</li>
+            <li>• ผู้ใช้สามารถนำข้อความไป Paste (Ctrl+V / แตะค้างแล้วเลือกวาง) ใน Google Gemini ได้ทันที</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Chapter 5: Security & PDPA -->
+    <section id="ch6" class="mb-14 page-break">
+      <h2 class="text-2xl font-heading font-bold text-slate-800 pb-3 border-b-2 border-emerald-200 mb-6 flex items-center gap-3">
+        <span class="text-[#006838]">บทที่ 4:</span> กฎเหล็กความปลอดภัยข้อมูลและ PDPA
+      </h2>
+      <p class="text-slate-700 text-sm mb-6 leading-relaxed">
+        เนื่องจากข้อมูลทางการเงินของลูกค้าเป็นข้อมูลลับชั้นสูง พนักงานทุกคนต้องปฏิบัติตามแนวทางการแปลงข้อมูล (Data Masking) ก่อนนำไปป้อนเข้าสู่โมเดล Generative AI ภายนอก ดังนี้:
+      </p>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm text-left border border-slate-200 rounded-xl overflow-hidden">
+          <thead class="bg-[#006838] text-white font-heading">
+            <tr>
+              <th class="p-3">ประเภทข้อมูล</th>
+              <th class="p-3">ห้ามป้อนเด็ดขาด ❌</th>
+              <th class="p-3">สิ่งที่ต้องแปลง (Data Masking) ✔</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-200 text-slate-700">
+            <tr>
+              <td class="p-3 font-semibold">ชื่อลูกค้า / นามสกุล</td>
+              <td class="p-3 text-red-600">นายสมชาย รักเกษตร</td>
+              <td class="p-3 text-emerald-700 font-medium">ลูกค้าบุคคลธรรมดา รายที่ 1 / นาย ส.</td>
+            </tr>
+            <tr class="bg-slate-50">
+              <td class="p-3 font-semibold">เลขบัตรประชาชน</td>
+              <td class="p-3 text-red-600">1-1004-99887-12-3</td>
+              <td class="p-3 text-emerald-700 font-medium">1-XXXX-XXXXX-12-3</td>
+            </tr>
+            <tr>
+              <td class="p-3 font-semibold">เลขบัญชีเงินฝาก</td>
+              <td class="p-3 text-red-600">020-1-2345678-9</td>
+              <td class="p-3 text-emerald-700 font-medium">020-X-XXXXX78-9 หรือ [บัญชีลูกค้า]</td>
+            </tr>
+            <tr class="bg-slate-50">
+              <td class="p-3 font-semibold">รหัสผ่าน / PIN / OTP</td>
+              <td class="p-3 text-red-600 font-bold">ห้ามใส่ทุกกรณี!</td>
+              <td class="p-3 text-slate-500">ตัดทิ้งออกจาก Prompt โดยสิ้นเชิง</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Chapter 6: FAQ -->
+    <section id="ch7" class="mb-10">
+      <h2 class="text-2xl font-heading font-bold text-slate-800 pb-3 border-b-2 border-emerald-200 mb-6 flex items-center gap-3">
+        <span class="text-[#006838]">บทที่ 5:</span> คำถามที่พบบ่อย (FAQ)
+      </h2>
+      <div class="space-y-4 text-sm">
+        <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200">
+          <h4 class="font-heading font-bold text-slate-800 mb-1">Q: หากเปิดเว็บทิ้งไว้ แล้วต้องการกลับสู่ค่าตั้งต้นทำอย่างไร?</h4>
+          <p class="text-slate-600">A: กดปุ่มไอคอนลูกศรหมุน <strong>"รีเซ็ตค่าเดิม"</strong> ที่ด้านล่างของการ์ดใบนั้น ค่าตัวแปรจะกลับเป็นข้อความตัวอย่างเริ่มต้นทันที</p>
+        </div>
+        <div class="p-4 bg-slate-50 rounded-2xl border border-slate-200">
+          <h4 class="font-heading font-bold text-slate-800 mb-1">Q: ตัวระบบเว็บมีการจัดเก็บข้อมูลที่เราพิมพ์ไว้หรือไม่?</h4>
+          <p class="text-slate-600">A: ไม่มีการจัดเก็บ ข้อมูลตัวแปรทั้งหมดอยู่ใน Memory ของเบราว์เซอร์บนเครื่องของท่านเท่านั้น เมื่อปิดหน้าต่างเว็บ ข้อมูลจะถูกลบโดยสมบูรณ์</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="mt-16 pt-8 border-t border-slate-200 text-center text-xs text-slate-500 font-heading">
+      <p>© สำนักธุรกรรมการเงิน ธนาคารเพื่อการเกษตรและสหกรณ์การเกษตร (ธ.ก.ส.)</p>
+      <p class="mt-1">ระบบคลังแม่แบบ Prompt Engineering สำหรับพนักงาน 11 กลุ่มงาน</p>
+    </footer>
+
+  </main>
+
+</body>
+</html>

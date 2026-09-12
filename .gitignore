@@ -20,3 +20,8 @@ venv/
 *.swp
 *.swo
 *~
+
+# Temporary & Build Output
+output/
+tmp/
+
