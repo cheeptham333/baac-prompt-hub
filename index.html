@@ -1,0 +1,1783 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="theme-color" content="#006838" />
+  <meta name="apple-mobile-web-app-title" content="ธ.ก.ส. Prompt Hub" />
+  <meta name="format-detection" content="telephone=no" />
+  <!-- Favicon & Official BAAC Icon -->
+  <link rel="icon" type="image/webp" href="assets/baac-logo.webp" />
+  <link rel="apple-touch-icon" href="assets/baac-logo.webp" />
+  <script src="assets/logo_base64.js"></script>
+  <title>ระบบคลังแม่แบบ Prompt & สร้างแอพบน Gemini Canvas | สำนักธุรกรรมการเงิน ธ.ก.ส.</title>
+  
+  <!-- Google Fonts: Prompt & Sarabun -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            baac: {
+              50: '#f0fdf4',
+              100: '#dcfce7',
+              200: '#bbf7d0',
+              500: '#22c55e',
+              600: '#16a34a',
+              700: '#008744',
+              800: '#006838', // BAAC Primary Deep Green
+              900: '#064e2b',
+              dark: '#033a20',
+              gold: '#eab308',
+              goldHover: '#ca8a04',
+              canvas: '#2563eb'
+            }
+          },
+          fontFamily: {
+            sans: ['Prompt', 'Sarabun', 'sans-serif'],
+            sarabun: ['Sarabun', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- React 18 and ReactDOM via CDN -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  
+  <!-- Babel Standalone to compile JSX in browser -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    body {
+      font-family: 'Prompt', sans-serif;
+      background-color: #f8fafc;
+      color: #1e293b;
+      -webkit-tap-highlight-color: transparent;
+      padding-bottom: env(safe-area-inset-bottom, 20px);
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 9999px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+    .touch-target {
+      min-height: 44px;
+      touch-action: manipulation;
+    }
+    input, textarea, select {
+      font-size: 16px !important; /* Prevents iOS Safari auto-zoom */
+    }
+    pre, code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.98); }
+      to { opacity: 1; transform: scale(1); }
+    }
+    .animate-fadeIn {
+      animation: fadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    /* Pulsing beacon */
+    @keyframes pulseGlow {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); }
+      50% { box-shadow: 0 0 0 8px rgba(34, 197, 94, 0); }
+    }
+    .pulse-glow {
+      animation: pulseGlow 2s infinite;
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <!-- Load Data Files -->
+  <script src="data/templates.js"></script>
+  <script src="data/canvas_templates.js"></script>
+  <script src="data/qrcode.js"></script>
+
+  <!-- React Application -->
+  <script type="text/babel">
+    const { useState, useEffect, useMemo } = React;
+
+    // SVG Icons
+    const Icons = {
+      Search: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>,
+      Copy: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>,
+      Check: () => <svg className="w-5 h-5 text-emerald-600 font-bold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7"/></svg>,
+      Sparkles: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>,
+      QrCode: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>,
+      Download: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>,
+      BookOpen: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>,
+      Close: () => <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"/></svg>,
+      Layers: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>,
+      ExternalLink: () => <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>,
+      ChevronDown: () => <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"/></svg>,
+      ChevronUp: () => <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 15l7-7 7 7"/></svg>,
+      Play: () => <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clipRule="evenodd"/></svg>,
+      ArrowUp: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>,
+      QuestionMark: () => <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+    };
+
+    // Robust Markdown & Table Renderer for Sample Output
+    function SampleOutputRenderer({ text }) {
+      if (!text) return null;
+
+      const lines = text.split('\n');
+      const elements = [];
+      let inTable = false;
+      let tableRows = [];
+
+      function renderTable(rows, key) {
+        if (!rows || rows.length < 2) return null;
+        const headerCols = rows[0].split('|').map(s => s.trim()).filter(Boolean);
+        const bodyRows = rows.slice(2).map(r => r.split('|').map(s => s.trim()).filter(Boolean));
+
+        return (
+          <div key={key} className="my-3 overflow-x-auto rounded-lg border border-slate-200">
+            <table className="min-w-full divide-y divide-slate-200 text-xs text-left">
+              <thead className="bg-baac-50 text-baac-900 font-bold">
+                <tr>
+                  {headerCols.map((h, i) => (
+                    <th key={i} className="px-3 py-2 border-r last:border-r-0 border-slate-200">{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-slate-100">
+                {bodyRows.map((cols, rIdx) => (
+                  <tr key={rIdx} className="hover:bg-slate-50">
+                    {cols.map((c, cIdx) => (
+                      <td key={cIdx} className="px-3 py-2 border-r last:border-r-0 border-slate-100 text-slate-700">{c}</td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        );
+      }
+
+      for (let i = 0; i < lines.length; i++) {
+        const line = lines[i];
+        if (line.trim().startsWith('|') && line.trim().endsWith('|')) {
+          inTable = true;
+          tableRows.push(line);
+        } else {
+          if (inTable) {
+            elements.push(renderTable(tableRows, `table-${i}`));
+            tableRows = [];
+            inTable = false;
+          }
+          if (line.startsWith('## ')) {
+            elements.push(<h2 key={i} className="text-sm font-bold text-baac-900 mt-3 mb-1">{line.replace('## ', '')}</h2>);
+          } else if (line.startsWith('### ')) {
+            elements.push(<h3 key={i} className="text-xs font-bold text-baac-800 mt-2 mb-1">{line.replace('### ', '')}</h3>);
+          } else if (line.startsWith('- ')) {
+            elements.push(<li key={i} className="ml-4 text-xs text-slate-700 list-disc">{line.replace('- ', '')}</li>);
+          } else if (line.trim()) {
+            elements.push(<p key={i} className="text-xs text-slate-700 leading-relaxed mb-1.5">{line}</p>);
+          }
+        }
+      }
+      if (inTable) {
+        elements.push(renderTable(tableRows, `table-end`));
+      }
+
+      return <div className="font-sarabun">{elements}</div>;
+    }
+
+    // Interactive Zero-API Mini-App Simulator for Canvas Demos
+    function InteractiveCanvasDemo({ app }) {
+      const deptCode = app.deptCode;
+
+      // State for different mini-app simulations
+      const [kpiScore, setKpiScore] = useState(88);
+      const [taxAmount, setTaxAmount] = useState(15000);
+      const [taxRate, setTaxRate] = useState(3);
+      const [eodChecks, setEodChecks] = useState([true, true, true, false]);
+      const [cashWithdrawal, setCashWithdrawal] = useState(4500000);
+      const [spinError, setSpinError] = useState("ERR-SPIN-9021");
+      const [swiftInput, setSwiftInput] = useState(":20:TRF20260912\n:32A:260912USD50000,\n:50K:BAAC THAI FARMER\n:59:EXPORT CO LTD");
+      const [chequeCode, setChequeCode] = useState("01");
+      const [reconFilter, setReconFilter] = useState("all");
+      const [atmIssue, setAtmIssue] = useState("card_stuck");
+      const [agentVolume, setAgentVolume] = useState(12000);
+      const [atmCashPct, setAtmCashPct] = useState(25);
+
+      // Dept 01 Demo: KPI Tracker
+      if (deptCode === "01") {
+        const statusColor = kpiScore >= 100 ? "text-emerald-600 bg-emerald-50" : kpiScore >= 80 ? "text-amber-600 bg-amber-50" : "text-rose-600 bg-rose-50";
+        return (
+          <div className="bg-white p-4 rounded-xl border border-slate-200 text-xs font-sarabun space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="font-bold text-slate-800 text-sm">📊 จำลองการประเมิน KPI ยุทธศาสตร์</span>
+              <span className={`px-2.5 py-1 rounded-full font-bold text-xs ${statusColor}`}>
+                {kpiScore >= 100 ? "🟢 บรรลุเป้าหมาย" : kpiScore >= 80 ? "🟡 เฝ้าระวัง" : "🔴 เสี่ยงไม่บรรลุ"} ({kpiScore}%)
+              </span>
+            </div>
+            <div>
+              <label className="block text-slate-600 mb-1">ปรับผลงานตัวชี้วัด (% ความสำเร็จ): <strong>{kpiScore}%</strong></label>
+              <input type="range" min="40" max="130" value={kpiScore} onChange={(e) => setKpiScore(Number(e.target.value))} className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-baac-700" />
+            </div>
+            <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100">
+              <div className="bg-slate-50 p-2 rounded">ปริมาณธุรกรรมดิจิทัล: <strong>108% (ผ่าน)</strong></div>
+              <div className="bg-slate-50 p-2 rounded">การอบรมทักษะ AI บุคลากร: <strong>{kpiScore}%</strong></div>
+            </div>
+          </div>
+        );
+      }
+
+      // Dept 02 Demo: BRD User Story & Test Case
+      if (deptCode === "02") {
+        return (
+          <div className="bg-white p-4 rounded-xl border border-slate-200 text-xs font-sarabun space-y-2.5">
+            <div className="font-bold text-slate-800 text-sm">📝 ตัวอย่าง User Story & Test Cases อัตโนมัติ</div>
+            <div className="bg-blue-50 text-blue-900 p-2.5 rounded-lg border border-blue-200 leading-relaxed">
+              <strong>User Story:</strong> ในฐานะ "ผู้จัดการสาขา ธ.ก.ส." ฉันต้องการ "ดูรายงานเงินสดคงเหลือแยกตามตู้ ATM" เพื่อ "วางแผนสั่งเงินสดสำรองได้แม่นยำ"
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-[11px] border border-slate-200">
+                <thead className="bg-slate-100 font-bold"><tr><th className="p-1.5">Test ID</th><th className="p-1.5">กรณีทดสอบ</th><th className="p-1.5">ผลลัพธ์ที่คาดหวัง</th></tr></thead>
+                <tbody>
+                  <tr className="border-t border-slate-100"><td className="p-1.5 font-mono">TC-01</td><td className="p-1.5">ยอดเงินคงเหลือปกติ</td><td className="p-1.5 text-emerald-600">แสดงผลสีเขียว ถูกต้อง</td></tr>
+                  <tr className="border-t border-slate-100"><td className="p-1.5 font-mono">TC-02</td><td className="p-1.5">เงินต่ำกว่า 20%</td><td className="p-1.5 text-rose-600">ส่ง SMS แจ้งเตือนสาขา</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        );
+      }
+
+      // Dept 03 Demo: Tax Calculator & EOD Checklist
+      if (deptCode === "03") {
+        const taxVal = (taxAmount * taxRate) / 100;
+        const netVal = taxAmount - taxVal;
+        const completedChecks = eodChecks.filter(Boolean).length;
+        return (
+          <div className="bg-white p-4 rounded-xl border border-slate-200 text-xs font-sarabun space-y-3">
+            <div className="font-bold text-slate-800 text-sm">💰 เครื่องคำนวณภาษีหัก ณ ที่จ่าย & ตรวจปิดระบบ</div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <div>
+                <label className="block text-slate-600 mb-1">ยอดเงินก่อนภาษี (บาท):</label>
+                <input type="number" value={taxAmount} onChange={(e) => setTaxAmount(Number(e.target.value))} className="w-full p-2 border border-slate-300 rounded-lg text-xs" />
+              </div>
+              <div>
+                <label className="block text-slate-600 mb-1">ประเภทเงินได้:</label>
+                <select value={taxRate} onChange={(e) => setTaxRate(Number(e.target.value))} className="w-full p-2 border border-slate-300 rounded-lg text-xs bg-white">
+                  <option value={3}>ค่าจ้างทำของ/บริการ (3%)</option>
+                  <option value={1}>ค่าขนส่ง (1%)</option>
+                  <option value={5}>ค่าเช่าทรัพย์สิน (5%)</option>
+                </select>
+              </div>
+            </div>
+            <div className="bg-emerald-50 border border-emerald-200 p-2.5 rounded-lg flex justify-between items-center text-xs">
+              <div>ภาษีหัก ณ ที่จ่าย ({taxRate}%): <strong className="text-emerald-800 text-sm">{taxVal.toLocaleString()} บ.</strong></div>
+              <div>ยอดจ่ายสุทธิ: <strong className="text-baac-900 text-sm">{netVal.toLocaleString()} บ.</strong></div>
+            </div>
+            <div className="pt-2 border-t border-slate-100">
+              <div className="flex justify-between items-center mb-1.5 font-bold text-slate-700">
+                <span>📋 สถานะเช็คลิสต์ปิดระบบสาขา (EOD):</span>
+                <span className="text-baac-800">{completedChecks}/4 รายการ</span>
+              </div>
+              <div className="grid grid-cols-2 gap-1.5 text-[11px]">
+                {["ตรวจเช็คเคลียริ่งคงค้าง", "กระทบยอดเงินสดหน้าเคาน์เตอร์", "ตรวจรายการโอน SPIN ค้างท่อ", "ส่งยอดปิดบัญชีสิ้นวัน"].map((txt, idx) => (
+                  <label key={idx} className="flex items-center gap-1.5 bg-slate-50 p-1.5 rounded cursor-pointer">
+                    <input type="checkbox" checked={eodChecks[idx]} onChange={() => {
+                      const updated = [...eodChecks];
+                      updated[idx] = !updated[idx];
+                      setEodChecks(updated);
+                    }} className="w-3.5 h-3.5 text-baac-700 rounded" />
+                    <span>{txt}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          </div>
+        );
+      }
+
+      // Dept 04 Demo: Cash Vault Buffer
+      if (deptCode === "04") {
+        const safeBuffer = cashWithdrawal * 3;
+        const holdingCostPerDay = (safeBuffer * 0.025) / 365;
+        return (
+          <div className="bg-white p-4 rounded-xl border border-slate-200 text-xs font-sarabun space-y-3">
+            <div className="font-bold text-slate-800 text-sm">🏦 จำลองปริมาณเงินสดสำรองสาขา (Vault Buffer)</div>
+            <div>
+              <label className="block text-slate-600 mb-1">ยอดจ่ายเงินสดเฉลี่ยต่อวัน (บาท):</label>
+              <input type="number" step="500000" value={cashWithdrawal} onChange={(e) => setCashWithdrawal(Number(e.target.value))} className="w-full p-2 border border-slate-300 rounded-lg text-xs" />
+            </div>
+            <div className="grid grid-cols-2 gap-2 bg-amber-50 border border-amber-200 p-2.5 rounded-lg text-xs">
+              <div>เงินสดสำรองปลอดภัย (3 วัน): <strong className="text-amber-900 block text-sm">{safeBuffer.toLocaleString()} บ.</strong></div>
+              <div>Holding Cost (2.5% ต่อวัน): <strong className="text-slate-800 block text-sm">{Math.round(holdingCostPerDay).toLocaleString()} บ./วัน</strong></div>
+            </div>
+          </div>
+        );
+      }
+
+      // Dept 05 Demo: SPIN Error Resolver
+      if (deptCode === "05") {
+        const errorDB = {
+          "ERR-SPIN-9021": { cause: "Timeout ขณะเชื่อมต่อ Core Banking ปลายทาง", action: "ตรวจรายการในบัญชีพัก 999888 หากตัดเงินสำเร็จให้ Manual Confirm", script: "ธนาคารกำลังดำเนินการปรับปรุงยอดเงินเข้าบัญชีปลายทางภายใน 19:00 น." },
+          "ERR-SPIN-9014": { cause: "เลขที่บัญชีปลายทางถูกระงับหรือปิดบัญชี", action: "ทำรายการ Reject คืนเงินกลับเข้าบัญชีต้นทางทันที", script: "บัญชีปลายทางไม่พร้อมรับโอน ยอดเงินได้โอนคืนกลับเข้าบัญชีของท่านแล้ว" },
+          "ERR-SPIN-9005": { cause: "ยอดเงินในบัญชีต้นทางไม่เพียงพอ", action: "แจ้งลูกค้าตรวจสอบยอดเงินคงเหลือ", script: "ยอดเงินคงเหลือในบัญชีไม่เพียงพอสำหรับการทำรายการ" }
+        };
+        const currentErr = errorDB[spinError] || errorDB["ERR-SPIN-9021"];
+        return (
+          <div className="bg-white p-4 rounded-xl border border-slate-200 text-xs font-sarabun space-y-3">
+            <div className="font-bold text-slate-800 text-sm">⚡ วินิจฉัยรหัสขัดข้องระบบโอนเงิน SPIN</div>
+            <div>
+              <label className="block text-slate-600 mb-1">เลือกรหัส Error Code:</label>
+              <select value={spinError} onChange={(e) => setSpinError(e.target.value)} className="w-full p-2 border border-slate-300 rounded-lg text-xs bg-white font-mono">
+                <option value="ERR-SPIN-9021">ERR-SPIN-9021 (Timeout การเชื่อมต่อ)</option>
+                <option value="ERR-SPIN-9014">ERR-SPIN-9014 (บัญชีปลายทางระงับ)</option>
+                <option value="ERR-SPIN-9005">ERR-SPIN-9005 (ยอดเงินไม่เพียงพอ)</option>
+              </select>
+            </div>
+            <div className="bg-slate-50 p-2.5 rounded-lg border border-slate-200 space-y-1.5">
+              <div><strong>สาเหตุ:</strong> <span className="text-slate-700">{currentErr.cause}</span></div>
+              <div><strong>แนวทางแก้ไข:</strong> <span className="text-baac-800 font-medium">{currentErr.action}</span></div>
+              <div className="pt-1.5 border-t border-slate-200"><strong>สคริปต์ตอบลูกค้า:</strong> <span className="text-slate-600 italic">"{currentErr.script}"</span></div>
+            </div>
+          </div>
+        );
+      }
+
+      // Dept 06 Demo: SWIFT MT103
+      if (deptCode === "06") {
+        return (
+          <div className="bg-white p-4 rounded-xl border border-slate-200 text-xs font-sarabun space-y-3">
+            <div className="font-bold text-slate-800 text-sm">🌐 ตรวจสอบข้อความ SWIFT MT103 & Cut-off Time</div>
+            <div className="bg-emerald-50 border border-emerald-200 p-2 rounded text-emerald-800 font-bold flex justify-between">
+              <span>สถานะ: แท็กบังคับครบถ้วน (:20, :32A, :50K, :59)</span>
+              <span>Cut-off: 15:30 น.</span>
+            </div>
+            <pre className="bg-slate-900 text-emerald-400 p-2.5 rounded-lg font-mono text-[11px] leading-relaxed">
+              {swiftInput}
+            </pre>
+          </div>
+        );
+      }
+
+      // Dept 07 Demo: ICAS Cheque
+      if (deptCode === "07") {
+        const chequeDB = {
+          "01": { title: "เงินในบัญชีไม่พอจ่าย (Insufficient Funds)", fee: "ค่าธรรมเนียมปรับตามเกณฑ์ ธปท. 200 บาท", advice: "ทำรายการคืนเช็คภายใน 14:00 น. ของวันทำการ" },
+          "02": { title: "ลายมือชื่อไม่ตรงตามตัวอย่าง (Signature Differs)", fee: "ไม่มีค่าปรับ แต่ต้องส่งภาพยืนยัน", advice: "ประสานงานสาขาเจ้าของบัญชีตรวจสอบลายมือชื่อ" },
+          "05": { title: "มีคำสั่งให้ระงับการจ่าย (Stop Payment)", fee: "ค่าธรรมเนียมระงับจ่าย 100 บาท", advice: "ตรวจสอบคำขอระงับจ่ายในระบบ Core Bank" }
+        };
+        const curCheque = chequeDB[chequeCode];
+        return (
+          <div className="bg-white p-4 rounded-xl border border-slate-200 text-xs font-sarabun space-y-3">
+            <div className="font-bold text-slate-800 text-sm">📑 ระบบสืบค้นรหัสส่งคืนเช็ค ICAS & ค่าธรรมเนียม</div>
+            <select value={chequeCode} onChange={(e) => setChequeCode(e.target.value)} className="w-full p-2 border border-slate-300 rounded-lg text-xs bg-white font-mono">
+              <option value="01">Code 01: เงินในบัญชีไม่พอจ่าย</option>
+              <option value="02">Code 02: ลายมือชื่อไม่ตรงตามตัวอย่าง</option>
+              <option value="05">Code 05: มีคำสั่งให้ระงับการจ่าย</option>
+            </select>
+            <div className="bg-amber-50 border border-amber-200 p-2.5 rounded-lg space-y-1">
+              <div className="font-bold text-amber-900">{curCheque.title}</div>
+              <div className="text-slate-700">เกณฑ์ค่าธรรมเนียม: {curCheque.fee}</div>
+              <div className="text-slate-600">ข้อปฏิบัติ: {curCheque.advice}</div>
+            </div>
+          </div>
+        );
+      }
+
+      // Dept 08 Demo: 3-Way Reconciliation
+      if (deptCode === "08") {
+        return (
+          <div className="bg-white p-4 rounded-xl border border-slate-200 text-xs font-sarabun space-y-3">
+            <div className="flex justify-between items-center">
+              <span className="font-bold text-slate-800 text-sm">⚖️ จำลองกระทบยอด 3 ทาง (3-Way Recon)</span>
+              <span className="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded text-[11px]">ตรงกัน 3 รายการ | ต่าง 1 รายการ</span>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-[11px] border border-slate-200">
+                <thead className="bg-slate-100 font-bold"><tr><th className="p-1.5">TX ID</th><th className="p-1.5">Core Bank</th><th className="p-1.5">Switch</th><th className="p-1.5">Partner</th><th className="p-1.5">สถานะ</th></tr></thead>
+                <tbody>
+                  <tr className="border-t border-slate-100"><td className="p-1.5 font-mono">TX-901</td><td className="p-1.5">1,500 บ.</td><td className="p-1.5">1,500 บ.</td><td className="p-1.5">1,500 บ.</td><td className="p-1.5 text-emerald-600 font-bold">✓ Match</td></tr>
+                  <tr className="border-t border-slate-100 bg-rose-50/60"><td className="p-1.5 font-mono">TX-902</td><td className="p-1.5">2,000 บ.</td><td className="p-1.5">2,000 บ.</td><td className="p-1.5 text-rose-600 font-bold">ไม่พบ</td><td className="p-1.5 text-rose-600 font-bold">⚠️ Unmatch</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        );
+      }
+
+      // Dept 09 Demo: ATM Cash Level & VOC
+      if (deptCode === "09") {
+        return (
+          <div className="bg-white p-4 rounded-xl border border-slate-200 text-xs font-sarabun space-y-3">
+            <div className="font-bold text-slate-800 text-sm">🏧 ระบบจัดหมวดหมู่ข้อร้องเรียนตู้ ATM (VOC Triage)</div>
+            <div>
+              <label className="block text-slate-600 mb-1">เลือกประเภทปัญหาที่ลูกค้าแจ้ง:</label>
+              <select value={atmIssue} onChange={(e) => setAtmIssue(e.target.value)} className="w-full p-2 border border-slate-300 rounded-lg text-xs bg-white">
+                <option value="card_stuck">บัตรติดในตู้ ATM ธ.ก.ส.</option>
+                <option value="cash_not_dispensed">เงินไม่ออกแต่ตัดบัญชีเรียบร้อย</option>
+                <option value="screen_freeze">หน้าจอตู้ค้างขณะทำรายการ</option>
+              </select>
+            </div>
+            <div className="bg-blue-50 border border-blue-200 p-2.5 rounded-lg text-xs space-y-1">
+              <div><strong>SLA แก้ไขปัญหา:</strong> {atmIssue === 'cash_not_dispensed' ? 'คืนเงินเข้าบัญชีภายใน 24 ชั่วโมงทำการ' : 'ทำลายบัตรตามมาตรฐานความปลอดภัย หรือติดต่อรับที่สาขา'}</div>
+              <div><strong>การจัดการเงินสด:</strong> ระบบสั่งล็อครายการตู้และเตรียมกระทบยอดเงินสดหน้าตู้</div>
+            </div>
+          </div>
+        );
+      }
+
+      // Dept 10 Demo: Banking Agent Commission
+      if (deptCode === "10") {
+        const commissionTotal = agentVolume * 5; // 5 บาทต่อรายการ
+        const baacShare = commissionTotal * 0.7;
+        const agentShare = commissionTotal * 0.3;
+        return (
+          <div className="bg-white p-4 rounded-xl border border-slate-200 text-xs font-sarabun space-y-3">
+            <div className="font-bold text-slate-800 text-sm">🏪 คำนวณค่าธรรมเนียมตัวแทนธนาคาร (Banking Agent)</div>
+            <div>
+              <label className="block text-slate-600 mb-1">จำนวนรายการธุรกรรมต่อเดือน (7-Eleven / Big C / ตู้บุญเติม): <strong>{agentVolume.toLocaleString()} รายการ</strong></label>
+              <input type="range" min="1000" max="50000" step="1000" value={agentVolume} onChange={(e) => setAgentVolume(Number(e.target.value))} className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-baac-700" />
+            </div>
+            <div className="grid grid-cols-2 gap-2 bg-emerald-50 border border-emerald-200 p-2.5 rounded-lg text-xs">
+              <div>ส่วนแบ่ง ธ.ก.ส. (70%): <strong className="text-emerald-900 block text-sm">{Math.round(baacShare).toLocaleString()} บ.</strong></div>
+              <div>ส่วนแบ่งตัวแทน (30%): <strong className="text-slate-800 block text-sm">{Math.round(agentShare).toLocaleString()} บ.</strong></div>
+            </div>
+          </div>
+        );
+      }
+
+      // Dept 11 Demo: Offsite ATM CIT Optimizer
+      if (deptCode === "11") {
+        const isUrgent = atmCashPct <= 20;
+        return (
+          <div className="bg-white p-4 rounded-xl border border-slate-200 text-xs font-sarabun space-y-3">
+            <div className="font-bold text-slate-800 text-sm">🚛 วางแผนรอบรถขนเงินตู้ ATM นอกสถานที่ (CIT)</div>
+            <div>
+              <label className="block text-slate-600 mb-1">ระดับเงินสดคงเหลือในตู้ปัจจุบัน: <strong>{atmCashPct}%</strong></label>
+              <input type="range" min="5" max="95" step="5" value={atmCashPct} onChange={(e) => setAtmCashPct(Number(e.target.value))} className="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-baac-700" />
+            </div>
+            <div className={`p-2.5 rounded-lg border text-xs ${isUrgent ? 'bg-rose-50 border-rose-300 text-rose-900' : 'bg-emerald-50 border-emerald-300 text-emerald-900'}`}>
+              <div className="font-bold text-sm">{isUrgent ? '🚨 แจ้งเตือน: เงินสดวิกฤต ต้องสั่งรถขนเงิน CIT ด่วน!' : '✅ ปกติ: รอบวิ่งรถตามกำหนดการปกติ'}</div>
+              <div className="mt-1">คาดว่าเงินจะหมดตู้ใน: <strong>{Math.round(atmCashPct / 5)} ชั่วโมง</strong></div>
+            </div>
+          </div>
+        );
+      }
+
+      return null;
+    }
+
+    function App() {
+      // Font scale state for accessibility (A-, A, A+)
+      const [fontScale, setFontScale] = useState("md");
+      // Main Mode Switcher: "daily" vs "canvas"
+      const [activeMode, setActiveMode] = useState("daily");
+      
+      const [selectedDept, setSelectedDept] = useState("all");
+      const [selectedCategory, setSelectedCategory] = useState("all");
+      const [searchQuery, setSearchQuery] = useState("");
+      
+      // Card state for daily templates
+      const [cardViews, setCardViews] = useState({});
+      const [copiedId, setCopiedId] = useState(null);
+      
+      // Modals
+      const [activeTemplate, setActiveTemplate] = useState(null);
+      const [customizedValues, setCustomizedValues] = useState({});
+      const [activeCanvasApp, setActiveCanvasApp] = useState(null);
+      const [canvasModalTab, setCanvasModalTab] = useState("demo"); // 'demo' | 'prompt'
+      const [showQrModal, setShowQrModal] = useState(false);
+      const [showGuideModal, setShowGuideModal] = useState(false);
+      const [showAppCraftDetail, setShowAppCraftDetail] = useState(false);
+      const [showBackToTop, setShowBackToTop] = useState(false);
+
+      // QR Code Settings for Classroom
+      const [qrHighContrast, setQrHighContrast] = useState(false);
+      const [qrCustomUrl, setQrCustomUrl] = useState(() => {
+        return window.location.href.startsWith("http") ? window.location.href : "http://localhost:8000";
+      });
+
+      // Scroll listener for back-to-top
+      useEffect(() => {
+        const handleScroll = () => {
+          if (window.scrollY > 300) {
+            setShowBackToTop(true);
+          } else {
+            setShowBackToTop(false);
+          }
+        };
+        window.addEventListener("scroll", handleScroll);
+        return () => window.removeEventListener("scroll", handleScroll);
+      }, []);
+
+      // Escape key to dismiss modals
+      useEffect(() => {
+        const handleKeyDown = (e) => {
+          if (e.key === "Escape") {
+            setActiveTemplate(null);
+            setActiveCanvasApp(null);
+            setShowQrModal(false);
+            setShowGuideModal(false);
+          }
+        };
+        window.addEventListener("keydown", handleKeyDown);
+        return () => window.removeEventListener("keydown", handleKeyDown);
+      }, []);
+
+      // Category counts and dynamic filtering (ซ่อนหมวดที่ไม่มีข้อมูลอัตโนมัติ)
+      const availableCategories = useMemo(() => {
+        const templatesInDept = selectedDept === "all"
+          ? TEMPLATES
+          : TEMPLATES.filter(item => item.deptId === selectedDept);
+
+        const counts = {};
+        templatesInDept.forEach(t => {
+          counts[t.category] = (counts[t.category] || 0) + 1;
+        });
+
+        // คืนค่าเฉพาะหมวดหมู่ที่มี Prompt จริงในกลุ่มงานนั้น (หรือ 'all' ซึ่งมีข้อมูลเสมอ)
+        return CATEGORIES.map(cat => ({
+          ...cat,
+          count: cat.id === "all" ? templatesInDept.length : (counts[cat.id] || 0)
+        })).filter(cat => cat.count > 0);
+      }, [selectedDept]);
+
+      // รีเซ็ต selectedCategory กลับเป็น "all" อัตโนมัติ หากกลุ่มงานที่เลือกใหม่ไม่มีหมวดหมู่นั้น
+      useEffect(() => {
+        if (selectedCategory !== "all") {
+          const exists = availableCategories.some(c => c.id === selectedCategory);
+          if (!exists) {
+            setSelectedCategory("all");
+          }
+        }
+      }, [selectedDept, availableCategories, selectedCategory]);
+
+      // Filtered Daily Templates
+      const filteredTemplates = useMemo(() => {
+        return TEMPLATES.filter(item => {
+          const matchDept = selectedDept === "all" || item.deptId === selectedDept;
+          const matchCat = selectedCategory === "all" || item.category === selectedCategory;
+          const q = searchQuery.toLowerCase().trim();
+          const matchQuery = !q || (
+            item.title.toLowerCase().includes(q) ||
+            item.description.toLowerCase().includes(q) ||
+            item.tags.some(t => t.toLowerCase().includes(q))
+          );
+          return matchDept && matchCat && matchQuery;
+        });
+      }, [selectedDept, selectedCategory, searchQuery]);
+
+      // Filtered Canvas App Templates
+      const filteredCanvasApps = useMemo(() => {
+        return CANVAS_APP_TEMPLATES.filter(item => {
+          const matchDept = selectedDept === "all" || 
+            DEPARTMENTS.find(d => d.code === item.deptCode)?.id === selectedDept;
+          const q = searchQuery.toLowerCase().trim();
+          const matchQuery = !q || (
+            item.appName.toLowerCase().includes(q) ||
+            item.deptName.toLowerCase().includes(q) ||
+            item.description.toLowerCase().includes(q) ||
+            item.highlights.some(h => h.toLowerCase().includes(q))
+          );
+          return matchDept && matchQuery;
+        });
+      }, [selectedDept, searchQuery]);
+
+      // Copy text helper with robust fallback
+      const copyToClipboard = (text, id) => {
+        if (!text) return;
+        if (navigator.clipboard && window.isSecureContext) {
+          navigator.clipboard.writeText(text).then(() => {
+            setCopiedId(id);
+            setTimeout(() => setCopiedId(null), 2500);
+          }).catch(() => fallbackCopy(text, id));
+        } else {
+          fallbackCopy(text, id);
+        }
+      };
+
+      const fallbackCopy = (text, id) => {
+        const textArea = document.createElement("textarea");
+        textArea.value = text;
+        textArea.style.position = "fixed";
+        textArea.style.left = "-999999px";
+        document.body.appendChild(textArea);
+        textArea.focus();
+        textArea.select();
+        try {
+          document.execCommand("copy");
+          setCopiedId(id);
+          setTimeout(() => setCopiedId(null), 2500);
+        } catch (err) {
+          alert("กรุณาคัดลอกข้อความด้วยตนเอง");
+        }
+        document.body.removeChild(textArea);
+      };
+
+      // Open customize modal
+      const handleOpenCustomize = (tmpl) => {
+        setActiveTemplate(tmpl);
+        const initialVals = {};
+        tmpl.variables.forEach(v => {
+          initialVals[v.key] = v.default;
+        });
+        setCustomizedValues(initialVals);
+      };
+
+      // Compute prompt with replaced variables
+      const getGeneratedPrompt = (tmpl, values) => {
+        if (!tmpl) return "";
+        let result = tmpl.template;
+        tmpl.variables.forEach(v => {
+          const val = values[v.key] !== undefined ? values[v.key] : v.default;
+          result = result.replace(new RegExp(`\\{${v.key}\\}`, 'g'), () => val);
+        });
+        return result;
+      };
+
+      const scrollToTop = () => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      };
+
+      return (
+        <div className="min-h-screen flex flex-col bg-slate-50 text-slate-800 pb-20 md:pb-6">
+          
+          {/* Official BAAC Utility Topbar */}
+          <div className="bg-[#004d2a] text-emerald-100 text-[11px] py-1.5 px-3 sm:px-6 border-b border-emerald-800/80 font-sarabun hidden sm:block">
+            <div className="max-w-7xl mx-auto flex items-center justify-between">
+              <div className="flex items-center space-x-2.5">
+                <span className="font-semibold text-white">ธนาคารเพื่อการเกษตรและสหกรณ์การเกษตร</span>
+                <span className="text-emerald-500">•</span>
+                <span className="text-emerald-200">ธนาคารพัฒนาชนบทที่ยั่งยืน</span>
+                <span className="text-emerald-500">•</span>
+                <span className="text-amber-300 font-medium">สำนักธุรกรรมการเงิน</span>
+              </div>
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-1.5 text-white">
+                  <span className="text-amber-300 font-bold">📞 Call Center:</span>
+                  <span className="font-bold text-amber-300">1593</span>
+                  <span className="text-emerald-300">/ 0 2555 0555</span>
+                </div>
+                <span className="text-emerald-700">|</span>
+                {/* Font Size Adjuster Controls */}
+                <div className="flex items-center space-x-1">
+                  <span className="text-emerald-300 mr-1 text-[10px]">ขนาดตัวอักษร:</span>
+                  <button
+                    onClick={() => setFontScale("sm")}
+                    className={`px-1.5 py-0.5 rounded border text-[10px] font-bold ${
+                      fontScale === "sm" ? "bg-amber-400 text-baac-900 border-amber-400" : "bg-emerald-900/60 text-emerald-200 border-emerald-700 hover:bg-emerald-800"
+                    }`}
+                    title="ตัวอักษรขนาดกะทัดรัด"
+                  >
+                    A-
+                  </button>
+                  <button
+                    onClick={() => setFontScale("md")}
+                    className={`px-1.5 py-0.5 rounded border text-[10px] font-bold ${
+                      fontScale === "md" ? "bg-amber-400 text-baac-900 border-amber-400" : "bg-emerald-900/60 text-emerald-200 border-emerald-700 hover:bg-emerald-800"
+                    }`}
+                    title="ตัวอักษรขนาดมาตรฐาน"
+                  >
+                    A
+                  </button>
+                  <button
+                    onClick={() => setFontScale("lg")}
+                    className={`px-1.5 py-0.5 rounded border text-[10px] font-bold ${
+                      fontScale === "lg" ? "bg-amber-400 text-baac-900 border-amber-400" : "bg-emerald-900/60 text-emerald-200 border-emerald-700 hover:bg-emerald-800"
+                    }`}
+                    title="ตัวอักษรขนาดใหญ่"
+                  >
+                    A+
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Top Bar / Header with Official BAAC Logo */}
+          <header className="sticky top-0 z-40 bg-gradient-to-r from-baac-800 via-baac-700 to-baac-900 text-white shadow-md border-b-2 border-amber-400">
+            <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+              <div className="flex items-center justify-between h-16 sm:h-20 py-2">
+                
+                {/* Brand Logo & Title */}
+                <div className="flex items-center space-x-3">
+                  <img
+                    src={typeof BAAC_LOGO_DATA_URI !== "undefined" ? BAAC_LOGO_DATA_URI : "assets/baac-logo.webp"}
+                    alt="ตราสัญลักษณ์ทางการ ธ.ก.ส."
+                    className="w-11 h-11 sm:w-14 sm:h-14 object-contain rounded-xl bg-white/10 p-1 border border-amber-300/40 shadow-md shrink-0"
+                  />
+                  <div>
+                    <div className="flex items-center space-x-2">
+                      <span className="bg-amber-400 text-baac-900 font-extrabold text-[10px] tracking-wider uppercase px-2 py-0.5 rounded-full shadow-xs">
+                        ธ.ก.ส. BAAC
+                      </span>
+                      <span className="text-[11px] text-emerald-300 font-semibold hidden sm:inline">
+                        ✓ ไม่ต้องใช้ API Key 100%
+                      </span>
+                      <span className="text-[10px] text-amber-200/90 hidden md:inline font-sarabun">
+                        • สำนักธุรกรรมการเงิน
+                      </span>
+                    </div>
+                    <h1 className="text-sm sm:text-lg font-bold tracking-tight text-white leading-tight">
+                      ธนาคารเพื่อการเกษตรและสหกรณ์การเกษตร | Prompt & Canvas Hub
+                    </h1>
+                  </div>
+                </div>
+
+                {/* Right Action Buttons */}
+                <div className="flex items-center space-x-1.5 sm:space-x-2">
+                  <button
+                    onClick={() => setShowQrModal(true)}
+                    className="touch-target flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-amber-400 hover:bg-amber-500 text-baac-900 text-xs sm:text-sm font-bold transition shadow-md"
+                    title="เปิด QR Code สำหรับผู้เรียน 150 คน"
+                  >
+                    <Icons.QrCode />
+                    <span className="hidden sm:inline">QR Code ห้องเรียน (150 คน)</span>
+                    <span className="sm:hidden">QR ฉายจอ</span>
+                  </button>
+
+                  <a
+                    href="https://gemini.google.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="touch-target flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-white/20 hover:bg-white/30 text-white text-xs sm:text-sm font-bold transition border border-white/30"
+                    title="เปิด Google Gemini ทันที"
+                  >
+                    <span>🚀 เปิด Gemini</span>
+                  </a>
+                </div>
+
+              </div>
+            </div>
+          </header>
+
+          {/* Top Mode Segmented Bar */}
+          <div className="bg-emerald-900/90 text-white border-b border-emerald-800 py-2.5 px-3 sm:px-6">
+            <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2.5">
+              
+              {/* Segmented Switcher */}
+              <div className="w-full sm:w-auto bg-slate-900/60 p-1 rounded-xl flex items-center border border-emerald-700/50">
+                <button
+                  onClick={() => setActiveMode("daily")}
+                  className={`touch-target flex-1 sm:flex-initial px-4 py-2 rounded-lg text-xs sm:text-sm font-bold transition flex items-center justify-center gap-1.5 ${
+                    activeMode === "daily"
+                      ? "bg-baac-600 text-white shadow-md"
+                      : "text-slate-300 hover:text-white"
+                  }`}
+                >
+                  <Icons.Layers />
+                  <span>📋 คลัง Prompt ประจำวัน ({TEMPLATES.length} แม่แบบ)</span>
+                </button>
+
+                <button
+                  onClick={() => setActiveMode("canvas")}
+                  className={`touch-target flex-1 sm:flex-initial px-4 py-2 rounded-lg text-xs sm:text-sm font-bold transition flex items-center justify-center gap-1.5 ${
+                    activeMode === "canvas"
+                      ? "bg-amber-400 text-baac-900 shadow-md"
+                      : "text-amber-300 hover:text-white"
+                  }`}
+                >
+                  <Icons.Sparkles />
+                  <span>🚀 สร้างแอพบน Gemini Canvas (11 มินิแอพ)</span>
+                </button>
+              </div>
+
+              {/* Status Note */}
+              <div className="text-[11px] text-emerald-200 font-sarabun hidden lg:flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                <span>{activeMode === "daily" ? "คลัง Prompt สำเร็จรูปสำหรับงานประจำวัน 11 กลุ่มงาน" : "Prompt อัจฉริยะสำหรับสร้างแอพพลิเคชันบน Gemini Canvas"}</span>
+              </div>
+
+            </div>
+          </div>
+
+          {/* Mobile 3-Step Quick Guide Banner (แตะ 1-2-3 ใช้ง่ายที่สุดบนมือถือ) */}
+          <div className="bg-gradient-to-r from-emerald-50 via-amber-50 to-emerald-50 border-b border-emerald-200 px-3 py-2.5 sm:px-6">
+            <div className="max-w-7xl mx-auto flex items-center justify-between gap-2 text-xs font-sarabun text-slate-700">
+              <div className="flex items-center gap-2 overflow-x-auto custom-scrollbar whitespace-nowrap py-0.5">
+                <span className="font-bold text-baac-900 bg-amber-400 text-baac-900 px-2 py-0.5 rounded-full text-[10px] shrink-0">
+                  📱 วิธีใช้บนมือถือ 3 ก้าว:
+                </span>
+                <span>1. แตะเลือกกลุ่มงาน</span>
+                <span className="text-slate-400">➔</span>
+                <span>2. แตะ <strong>"คัดลอก Prompt"</strong></span>
+                <span className="text-slate-400">➔</span>
+                <span>3. แตะ <strong>"🚀 เปิด Gemini"</strong> แล้ววางคำสั่งส่งได้ทันที!</span>
+              </div>
+              <button
+                onClick={() => setShowGuideModal(true)}
+                className="touch-target text-baac-800 hover:text-baac-900 font-bold underline text-[11px] shrink-0 ml-1"
+              >
+                ดูวิธีใช้อย่างละเอียด
+              </button>
+            </div>
+          </div>
+
+          {/* Hero Section */}
+          <section className="bg-white border-b border-slate-200 py-4 px-3 sm:px-6 lg:px-8">
+            <div className="max-w-7xl mx-auto">
+              
+              {activeMode === "daily" ? (
+                /* Daily Prompt Mode Hero */
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+                  <div>
+                    <h2 className="text-base sm:text-xl font-bold text-slate-800 flex items-center gap-2 flex-wrap">
+                      <span>คลังแม่แบบ Prompt ประจำวัน (สำนักธุรกรรมการเงิน)</span>
+                      <span className="text-xs bg-emerald-100 text-baac-800 font-semibold px-2.5 py-0.5 rounded-full border border-emerald-200">
+                        Zero-API ใช้งานได้ทันที
+                      </span>
+                    </h2>
+                    <p className="text-xs sm:text-sm text-slate-600 mt-1 font-sarabun">
+                      แตะปุ่ม <strong>"คัดลอก Prompt ทันที"</strong> หรือสลับดู <strong>"ตัวอย่างคำตอบ AI"</strong> ได้ในการ์ดแต่ละใบ
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                /* Canvas Mode Hero */
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+                  <div>
+                    <div className="flex items-center gap-2 flex-wrap mb-1">
+                      <span className="text-xs bg-amber-100 text-amber-900 font-bold px-2.5 py-0.5 rounded-full border border-amber-300">
+                        ⚡ Google Gemini Canvas Mode
+                      </span>
+                      <span className="text-xs bg-blue-100 text-blue-900 font-semibold px-2.5 py-0.5 rounded-full">
+                        11 กลุ่มงาน 11 มินิแอพ
+                      </span>
+                    </div>
+                    <h2 className="text-base sm:text-xl font-bold text-slate-900">
+                      สร้างเว็บแอพพลิเคชันการเงินด้วยตนเองบน Gemini Canvas
+                    </h2>
+                    <p className="text-xs sm:text-sm text-slate-600 mt-1 font-sarabun max-w-3xl">
+                      เพียงกดคัดลอก Prompt ของกลุ่มงานท่าน แล้วนำไปวางใน <strong>Gemini Canvas</strong> ระบบจะเขียนโค้ดและสร้างเว็บแอพคำนวณ/แดชบอร์ดให้ใช้งานได้ทันที
+                    </p>
+                  </div>
+
+                  <button
+                    onClick={() => setShowAppCraftDetail(!showAppCraftDetail)}
+                    className="touch-target self-start md:self-center flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-xs font-bold text-slate-700 transition border border-slate-300"
+                  >
+                    <Icons.BookOpen />
+                    <span>{showAppCraftDetail ? "ซ่อนคู่มือ 5 ขั้นตอน" : "ดูคู่มือ 5 ขั้นตอน APP-CRAFT"}</span>
+                    {showAppCraftDetail ? <Icons.ChevronUp /> : <Icons.ChevronDown />}
+                  </button>
+                </div>
+              )}
+
+              {/* Collapsible APP-CRAFT Step-by-Step Guide for Canvas Mode */}
+              {activeMode === "canvas" && showAppCraftDetail && (
+                <div className="mt-4 p-4 sm:p-5 bg-gradient-to-br from-emerald-50 via-white to-amber-50 rounded-2xl border-2 border-emerald-300 shadow-sm animate-fadeIn">
+                  <div className="flex items-center justify-between mb-3 border-b border-emerald-200 pb-2">
+                    <div>
+                      <h3 className="text-sm sm:text-base font-bold text-baac-900 flex items-center gap-2">
+                        <span>💡 {APP_CRAFT_GUIDE.title}</span>
+                      </h3>
+                      <p className="text-xs text-slate-600 font-sarabun">{APP_CRAFT_GUIDE.subtitle}</p>
+                    </div>
+                  </div>
+
+                  {/* 5 Steps Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-5 gap-3 my-3">
+                    {APP_CRAFT_GUIDE.steps.map(st => (
+                      <div key={st.step} className="bg-white p-3 rounded-xl border border-emerald-200 shadow-xs flex flex-col justify-between">
+                        <div>
+                          <span className="text-[10px] font-bold bg-baac-700 text-white px-2 py-0.5 rounded-full inline-block mb-1.5">
+                            {st.tag}
+                          </span>
+                          <h4 className="text-xs font-bold text-slate-800 leading-snug">{st.title}</h4>
+                          <p className="text-[11px] text-slate-600 font-sarabun mt-1 leading-relaxed">{st.desc}</p>
+                        </div>
+                        <div className="mt-2 pt-2 border-t border-slate-100 bg-slate-50 p-1.5 rounded text-[10px] font-sarabun text-slate-500 italic">
+                          "{st.example.slice(0, 75)}..."
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Quick Tips */}
+                  <div className="mt-3 bg-amber-100/70 p-3 rounded-xl border border-amber-200 text-xs font-sarabun text-amber-950 space-y-1">
+                    {APP_CRAFT_GUIDE.quickTips.map((tip, idx) => (
+                      <div key={idx} className="leading-relaxed">{tip}</div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Search & Filter Bar */}
+              <div className="mt-3 grid grid-cols-1 md:grid-cols-12 gap-2.5">
+                {/* Search Box */}
+                <div className="md:col-span-5 relative">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                    <Icons.Search />
+                  </div>
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder={activeMode === "daily" ? "ค้นหาเทมเพลต (เช่น เช็คคืน, SPIN, ATM, ภาษี)..." : "ค้นหาแอพพลิเคชัน (เช่น KPI, ปิดระบบ, คำนวณภาษี)..."}
+                    className="touch-target w-full pl-10 pr-10 py-2.5 rounded-xl border border-slate-300 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-baac-600 text-xs sm:text-sm transition"
+                  />
+                  {searchQuery && (
+                    <button
+                      onClick={() => setSearchQuery("")}
+                      className="touch-target absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 text-xs"
+                    >
+                      ล้าง
+                    </button>
+                  )}
+                </div>
+
+                {/* Category Filter Pills (Only for Daily Mode) */}
+                {activeMode === "daily" && (
+                  <div className="md:col-span-7 flex items-center overflow-x-auto custom-scrollbar pb-1 gap-1.5">
+                    {availableCategories.map(cat => (
+                      <button
+                        key={cat.id}
+                        onClick={() => setSelectedCategory(cat.id)}
+                        className={`touch-target whitespace-nowrap px-3 py-1.5 rounded-xl text-xs font-medium transition flex items-center gap-1.5 ${
+                          selectedCategory === cat.id
+                            ? "bg-baac-800 text-white shadow-xs font-semibold"
+                            : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+                        }`}
+                      >
+                        <span>{cat.name}</span>
+                        <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
+                          selectedCategory === cat.id ? "bg-amber-400 text-baac-900" : "bg-slate-200 text-slate-700"
+                        }`}>
+                          {cat.count}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Horizontal Scrollable Department Pills (Mobile-First Bar) */}
+              <div className="mt-2.5 flex items-center overflow-x-auto custom-scrollbar pb-1.5 gap-1.5">
+                {DEPARTMENTS.map(dept => {
+                  const isSelected = selectedDept === dept.id;
+                  const deptCount = dept.id === "all"
+                    ? TEMPLATES.length
+                    : TEMPLATES.filter(t => t.deptId === dept.id).length;
+
+                  return (
+                    <button
+                      key={dept.id}
+                      onClick={() => setSelectedDept(dept.id)}
+                      className={`touch-target shrink-0 flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold transition ${
+                        isSelected
+                          ? "bg-baac-800 text-white shadow-sm border border-baac-900"
+                          : "bg-white text-slate-700 hover:bg-slate-100 border border-slate-200"
+                      }`}
+                    >
+                      <span className={`w-5 h-5 flex items-center justify-center rounded-md text-[10px] ${
+                        isSelected ? "bg-amber-400 text-baac-900 font-bold" : "bg-slate-100 text-slate-600"
+                      }`}>
+                        {dept.code || "All"}
+                      </span>
+                      <span className="truncate max-w-[150px] sm:max-w-none">{dept.name}</span>
+                      <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
+                        isSelected ? "bg-emerald-600 text-white" : "bg-slate-100 text-slate-500"
+                      }`}>
+                        {deptCount}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+
+            </div>
+          </section>
+
+          {/* Main Content Area */}
+          <main className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-5 w-full flex-1">
+            
+            {/* MODE 1: Daily Prompt Templates Grid */}
+            {activeMode === "daily" && (
+              <div>
+                {filteredTemplates.length === 0 ? (
+                  <div className="bg-white rounded-2xl p-10 text-center border border-slate-200 shadow-sm">
+                    <div className="text-4xl mb-2">🔍</div>
+                    <h3 className="font-bold text-slate-700 text-base">ไม่พบแม่แบบ Prompt ที่ตรงกับคำค้นหา</h3>
+                    <p className="text-xs text-slate-500 mt-1">ลองเปลี่ยนคำค้นหา หรือเลือกดูทุกกลุ่มงาน</p>
+                    <button
+                      onClick={() => { setSelectedDept("all"); setSelectedCategory("all"); setSearchQuery(""); }}
+                      className="touch-target mt-3 px-4 py-2 bg-baac-800 text-white text-xs font-semibold rounded-xl"
+                    >
+                      แสดงทั้งหมด
+                    </button>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {filteredTemplates.map(tmpl => {
+                      const dept = DEPARTMENTS.find(d => d.id === tmpl.deptId);
+                      const currentView = cardViews[tmpl.id] || 'prompt';
+                      const isCopied = copiedId === tmpl.id;
+                      const textToCopy = currentView === 'prompt' 
+                        ? getGeneratedPrompt(tmpl, {}) 
+                        : tmpl.sampleOutput;
+
+                      return (
+                        <div
+                          key={tmpl.id}
+                          className="bg-white rounded-2xl border border-slate-200 hover:border-baac-500 hover:shadow-md transition duration-200 flex flex-col justify-between overflow-hidden"
+                        >
+                          {/* Card Top */}
+                          <div className="p-4 sm:p-5">
+                            <div className="flex items-center justify-between gap-2 mb-2">
+                              <span className="text-[11px] font-semibold text-baac-800 bg-baac-50 border border-baac-200 px-2 py-0.5 rounded-md truncate">
+                                {dept?.code ? `กลุ่มงาน ${dept.code}: ` : ""}{dept?.name}
+                              </span>
+                              <span className="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full font-medium shrink-0">
+                                {CATEGORIES.find(c => c.id === tmpl.category)?.name || tmpl.category}
+                              </span>
+                            </div>
+
+                            <h3 className="font-bold text-slate-900 text-sm sm:text-base leading-snug line-clamp-2">
+                              {tmpl.title}
+                            </h3>
+
+                            <p className="text-xs text-slate-500 font-sarabun mt-1 line-clamp-2">
+                              {tmpl.description}
+                            </p>
+
+                            {/* In-Card Segmented Switcher (Prompt vs Sample Output) */}
+                            <div className="mt-3 bg-slate-100 p-1 rounded-xl flex items-center gap-1 border border-slate-200">
+                              <button
+                                onClick={() => setCardViews({ ...cardViews, [tmpl.id]: 'prompt' })}
+                                className={`touch-target flex-1 py-1.5 rounded-lg text-xs font-semibold transition ${
+                                  currentView === 'prompt'
+                                    ? "bg-white text-baac-800 shadow-xs"
+                                    : "text-slate-600 hover:text-slate-900"
+                                }`}
+                              >
+                                📝 แม่แบบ Prompt
+                              </button>
+                              <button
+                                onClick={() => setCardViews({ ...cardViews, [tmpl.id]: 'sample' })}
+                                className={`touch-target flex-1 py-1.5 rounded-lg text-xs font-semibold transition ${
+                                  currentView === 'sample'
+                                    ? "bg-emerald-700 text-white shadow-xs"
+                                    : "text-slate-600 hover:text-slate-900"
+                                }`}
+                              >
+                                ✨ ตัวอย่างคำตอบ AI
+                              </button>
+                            </div>
+
+                            {/* View Content Box */}
+                            <div className="mt-2.5 bg-slate-50 rounded-xl p-3 border border-slate-200 max-h-48 overflow-y-auto custom-scrollbar text-xs font-sarabun">
+                              {currentView === 'prompt' ? (
+                                <pre className="whitespace-pre-wrap text-slate-700 font-sarabun leading-relaxed">
+                                  {getGeneratedPrompt(tmpl, {})}
+                                </pre>
+                              ) : (
+                                <SampleOutputRenderer text={tmpl.sampleOutput} />
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Card Footer: 1-Tap Copy & Gemini Quick Link */}
+                          <div className="px-4 py-3 bg-slate-50 border-t border-slate-100 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2">
+                            <button
+                              onClick={() => handleOpenCustomize(tmpl)}
+                              className="touch-target px-3 py-2 rounded-xl bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 text-xs font-semibold transition shrink-0"
+                            >
+                              ⚙️ ปรับแต่งตัวแปร
+                            </button>
+
+                            {/* Direct Open Gemini Link */}
+                            <a
+                              href="https://gemini.google.com"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="touch-target px-3 py-2 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold transition flex items-center justify-center gap-1 border border-blue-200 shrink-0"
+                              title="เปิด Google Gemini"
+                            >
+                              <span>🚀 เปิด Gemini</span>
+                            </a>
+
+                            {/* Big 1-Tap Copy Button (Touch-Friendly min-h-[48px]) */}
+                            <button
+                              onClick={() => copyToClipboard(textToCopy, tmpl.id)}
+                              className={`touch-target flex-1 min-h-[48px] px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition flex items-center justify-center gap-2 shadow-xs ${
+                                isCopied
+                                  ? "bg-emerald-600 text-white shadow-md scale-102"
+                                  : "bg-baac-800 hover:bg-baac-900 text-white"
+                              }`}
+                            >
+                              {isCopied ? <Icons.Check /> : <Icons.Copy />}
+                              <span>{isCopied ? "คัดลอกสำเร็จแล้ว!" : currentView === 'prompt' ? "คัดลอก Prompt ทันที" : "คัดลอกตัวอย่างคำตอบ"}</span>
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* MODE 2: Gemini Canvas App Builder Mode */}
+            {activeMode === "canvas" && (
+              <div>
+                {filteredCanvasApps.length === 0 ? (
+                  <div className="bg-white rounded-2xl p-10 text-center border border-slate-200 shadow-sm">
+                    <div className="text-4xl mb-2">🚀</div>
+                    <h3 className="font-bold text-slate-700 text-base">ไม่พบแอพพลิเคชันที่ตรงกับคำค้นหา</h3>
+                    <p className="text-xs text-slate-500 mt-1">ลองเปลี่ยนคำค้นหา หรือเลือกดูทุกกลุ่มงาน</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
+                    {filteredCanvasApps.map(app => {
+                      const isCopied = copiedId === app.id;
+
+                      return (
+                        <div
+                          key={app.id}
+                          className="bg-white rounded-2xl border-2 border-slate-200 hover:border-amber-400 hover:shadow-lg transition duration-200 flex flex-col justify-between overflow-hidden"
+                        >
+                          {/* Card Header & Content */}
+                          <div className="p-4 sm:p-5">
+                            
+                            {/* Badges */}
+                            <div className="flex items-center justify-between gap-2 mb-2">
+                              <span className="text-[11px] font-bold text-baac-900 bg-amber-100 border border-amber-300 px-2.5 py-0.5 rounded-full">
+                                กลุ่มงาน {app.deptCode}: {app.deptName}
+                              </span>
+                              <span className="text-[10px] bg-blue-50 text-blue-800 font-semibold px-2 py-0.5 rounded-md border border-blue-200">
+                                {app.badge}
+                              </span>
+                            </div>
+
+                            {/* App Title */}
+                            <h3 className="font-bold text-slate-900 text-base sm:text-lg leading-snug">
+                              {app.appName}
+                            </h3>
+
+                            {/* App Description */}
+                            <p className="text-xs text-slate-600 font-sarabun mt-1.5 leading-relaxed">
+                              {app.description}
+                            </p>
+
+                            {/* Highlights Checklist */}
+                            <div className="mt-3 bg-slate-50 rounded-xl p-3 border border-slate-200 space-y-1.5">
+                              <div className="text-[11px] font-bold text-slate-700 uppercase tracking-wider">ฟังก์ชันเด่นของแอพนี้:</div>
+                              {app.highlights.map((h, i) => (
+                                <div key={i} className="flex items-start gap-1.5 text-xs font-sarabun text-slate-700">
+                                  <span className="text-emerald-600 font-bold shrink-0">✓</span>
+                                  <span>{h}</span>
+                                </div>
+                              ))}
+                            </div>
+
+                          </div>
+
+                          {/* Card Footer: Action Buttons */}
+                          <div className="px-4 py-3.5 bg-gradient-to-r from-slate-50 to-amber-50/50 border-t border-slate-200 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2">
+                            
+                            {/* Interactive Demo & View Full Prompt Trigger */}
+                            <button
+                              onClick={() => {
+                                setActiveCanvasApp(app);
+                                setCanvasModalTab("demo");
+                              }}
+                              className="touch-target px-3 py-2 rounded-xl bg-amber-100 hover:bg-amber-200 border border-amber-300 text-amber-900 text-xs font-bold transition flex items-center gap-1.5 shrink-0"
+                            >
+                              <Icons.Play />
+                              <span>ทดลองเล่นตัวอย่าง</span>
+                            </button>
+
+                            {/* Open Gemini Link */}
+                            <a
+                              href="https://gemini.google.com"
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="touch-target px-3 py-2 rounded-xl bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold transition flex items-center justify-center gap-1 border border-blue-200 shrink-0"
+                              title="เปิด Google Gemini"
+                            >
+                              <span>🚀 เปิด Gemini</span>
+                            </a>
+
+                            {/* Big 1-Tap Copy Canvas Prompt */}
+                            <button
+                              onClick={() => copyToClipboard(app.canvasPrompt, app.id)}
+                              className={`touch-target flex-1 min-h-[48px] px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition flex items-center justify-center gap-2 shadow-md ${
+                                isCopied
+                                  ? "bg-emerald-600 text-white scale-102"
+                                  : "bg-gradient-to-r from-baac-800 to-baac-700 hover:from-baac-900 hover:to-baac-800 text-white"
+                              }`}
+                            >
+                              {isCopied ? <Icons.Check /> : <Icons.Copy />}
+                              <span>{isCopied ? "คัดลอก Prompt สร้างแอพแล้ว!" : "คัดลอก Prompt สร้างแอพ"}</span>
+                            </button>
+
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            )}
+
+          </main>
+
+          {/* Modal: Customize Variables & Generate Prompt (Daily Mode) */}
+          {activeTemplate && (
+            <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6">
+              <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] flex flex-col shadow-2xl border border-slate-200 overflow-hidden animate-fadeIn">
+                
+                {/* Header */}
+                <div className="px-5 py-4 bg-gradient-to-r from-baac-800 to-baac-900 text-white flex items-center justify-between">
+                  <div>
+                    <span className="text-[11px] text-amber-300 font-bold uppercase">
+                      {DEPARTMENTS.find(d => d.id === activeTemplate.deptId)?.name}
+                    </span>
+                    <h3 className="text-base font-bold leading-tight">{activeTemplate.title}</h3>
+                  </div>
+                  <button onClick={() => setActiveTemplate(null)} className="touch-target p-2 text-white/80 hover:text-white">
+                    <Icons.Close />
+                  </button>
+                </div>
+
+                {/* Form Body */}
+                <div className="p-5 overflow-y-auto custom-scrollbar space-y-4">
+                  <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                    กรอกข้อมูลตัวแปรสำหรับหน่วยงานของคุณ:
+                  </h4>
+                  <div className="space-y-3">
+                    {activeTemplate.variables.map(v => (
+                      <div key={v.key}>
+                        <label className="block text-xs font-semibold text-slate-700 mb-1">
+                          {v.label}
+                        </label>
+                        {v.default.includes("\n") ? (
+                          <textarea
+                            rows={3}
+                            value={customizedValues[v.key] !== undefined ? customizedValues[v.key] : v.default}
+                            onChange={(e) => setCustomizedValues({ ...customizedValues, [v.key]: e.target.value })}
+                            className="w-full text-xs font-sarabun p-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-baac-600 focus:border-transparent"
+                          />
+                        ) : (
+                          <input
+                            type="text"
+                            value={customizedValues[v.key] !== undefined ? customizedValues[v.key] : v.default}
+                            onChange={(e) => setCustomizedValues({ ...customizedValues, [v.key]: e.target.value })}
+                            className="w-full text-xs font-sarabun p-2.5 rounded-xl border border-slate-300 focus:ring-2 focus:ring-baac-600 focus:border-transparent"
+                          />
+                        )}
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Preview */}
+                  <div>
+                    <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-1">
+                      Prompt ฉบับสมบูรณ์ (พร้อมนำไปใช้):
+                    </h4>
+                    <pre className="text-xs font-sarabun bg-slate-900 text-slate-100 p-3.5 rounded-xl whitespace-pre-wrap leading-relaxed max-h-48 overflow-y-auto custom-scrollbar border border-slate-800">
+                      {getGeneratedPrompt(activeTemplate, customizedValues)}
+                    </pre>
+                  </div>
+                </div>
+
+                {/* Footer */}
+                <div className="px-5 py-3 bg-slate-50 border-t border-slate-200 flex items-center justify-between gap-2">
+                  <button
+                    onClick={() => {
+                      const initial = {};
+                      activeTemplate.variables.forEach(v => initial[v.key] = v.default);
+                      setCustomizedValues(initial);
+                    }}
+                    className="touch-target text-xs text-slate-500 hover:text-slate-800"
+                  >
+                    รีเซ็ตค่าเริ่มต้น
+                  </button>
+
+                  <div className="flex items-center gap-2">
+                    <a
+                      href="https://gemini.google.com"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="touch-target px-3 py-2 rounded-xl bg-blue-50 text-blue-700 text-xs font-bold border border-blue-200"
+                    >
+                      🚀 เปิด Gemini
+                    </a>
+
+                    <button
+                      onClick={() => {
+                        copyToClipboard(getGeneratedPrompt(activeTemplate, customizedValues), "modal-prompt");
+                      }}
+                      className="touch-target min-h-[44px] px-5 py-2 rounded-xl bg-baac-800 hover:bg-baac-900 text-white text-xs sm:text-sm font-bold transition flex items-center gap-1.5 shadow-sm"
+                    >
+                      {copiedId === "modal-prompt" ? <Icons.Check /> : <Icons.Copy />}
+                      <span>{copiedId === "modal-prompt" ? "คัดลอกเรียบร้อย!" : "คัดลอก Prompt นี้"}</span>
+                    </button>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          )}
+
+          {/* Modal: Interactive Live Demo & View Canvas App Prompt */}
+          {activeCanvasApp && (
+            <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6">
+              <div className="bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] flex flex-col shadow-2xl border border-slate-200 overflow-hidden animate-fadeIn">
+                
+                {/* Header */}
+                <div className="px-5 py-3.5 bg-gradient-to-r from-slate-900 via-baac-900 to-baac-800 text-white flex items-center justify-between">
+                  <div>
+                    <span className="text-[11px] text-amber-300 font-bold uppercase">
+                      กลุ่มงาน {activeCanvasApp.deptCode}: {activeCanvasApp.deptName}
+                    </span>
+                    <h3 className="text-base sm:text-lg font-bold leading-tight">{activeCanvasApp.appName}</h3>
+                  </div>
+                  <button onClick={() => setActiveCanvasApp(null)} className="touch-target p-2 text-white/80 hover:text-white">
+                    <Icons.Close />
+                  </button>
+                </div>
+
+                {/* Modal Tab Switcher (Live Demo vs Full Prompt) */}
+                <div className="bg-slate-100 p-1.5 flex items-center border-b border-slate-200 gap-1">
+                  <button
+                    onClick={() => setCanvasModalTab("demo")}
+                    className={`touch-target flex-1 py-1.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 ${
+                      canvasModalTab === "demo" ? "bg-white text-baac-900 shadow-xs" : "text-slate-600 hover:text-slate-900"
+                    }`}
+                  >
+                    <Icons.Play />
+                    <span>🎮 ทดลองใช้งานแอพจำลอง (Live Demo)</span>
+                  </button>
+                  <button
+                    onClick={() => setCanvasModalTab("prompt")}
+                    className={`touch-target flex-1 py-1.5 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1.5 ${
+                      canvasModalTab === "prompt" ? "bg-white text-baac-900 shadow-xs" : "text-slate-600 hover:text-slate-900"
+                    }`}
+                  >
+                    <Icons.Sparkles />
+                    <span>📋 ข้อความ Prompt สำหรับ Canvas</span>
+                  </button>
+                </div>
+
+                {/* Body */}
+                <div className="p-5 overflow-y-auto custom-scrollbar space-y-4">
+                  
+                  {canvasModalTab === "demo" ? (
+                    <div className="space-y-3">
+                      <div className="bg-amber-50 border border-amber-200 p-3 rounded-xl text-xs font-sarabun text-amber-900">
+                        💡 <strong>แอพจำลองนี้ทำงานแบบ Zero-API ทันที</strong>: ท่านสามารถทดลองใช้งานและปรับค่าตัวแปรได้ หากต้องการให้ Gemini Canvas สร้างแอพเวอร์ชันเต็มพร้อมโค้ด สามารถกดปุ่ม <strong>"คัดลอก Prompt สำหรับ Canvas"</strong> ด้านล่างได้เลย
+                      </div>
+                      <InteractiveCanvasDemo app={activeCanvasApp} />
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {/* How to use on Gemini Canvas */}
+                      <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 text-xs font-sarabun text-blue-950 space-y-1">
+                        <div className="font-bold text-blue-900 flex items-center gap-1.5">
+                          <span>💡 วิธีนำ Prompt นี้ไปสร้างแอพบน Gemini Canvas:</span>
+                        </div>
+                        <p>1. เปิด <a href="https://gemini.google.com" target="_blank" className="text-blue-700 underline font-bold">Google Gemini</a> ในเบราว์เซอร์</p>
+                        <p>2. กดไอคอนเครื่องมือ <strong>Canvas</strong> หรือพิมพ์ในแชท</p>
+                        <p>3. วางข้อความ Prompt ด้านล่างนี้ลงไป แล้วกดส่งคำสั่ง</p>
+                        <p>4. Gemini Canvas จะเขียนโค้ดและแสดงผลเว็บแอพพลิเคชันแบบ Interactive ให้ทดลองเล่นและปรับแต่งได้ทันที!</p>
+                      </div>
+
+                      {/* Full Prompt Display */}
+                      <div>
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-xs font-bold text-slate-700 uppercase">ข้อความคำสั่งสร้างแอพบน Canvas:</span>
+                          <button
+                            onClick={() => copyToClipboard(activeCanvasApp.canvasPrompt, "modal-canvas-prompt")}
+                            className="text-xs text-baac-800 hover:text-baac-900 font-bold flex items-center gap-1"
+                          >
+                            {copiedId === "modal-canvas-prompt" ? <Icons.Check /> : <Icons.Copy />}
+                            <span>{copiedId === "modal-canvas-prompt" ? "คัดลอกสำเร็จแล้ว!" : "คัดลอกข้อความ"}</span>
+                          </button>
+                        </div>
+                        <pre className="text-xs font-sarabun bg-slate-900 text-slate-100 p-4 rounded-xl whitespace-pre-wrap leading-relaxed max-h-72 overflow-y-auto custom-scrollbar border border-slate-800">
+                          {activeCanvasApp.canvasPrompt}
+                        </pre>
+                      </div>
+                    </div>
+                  )}
+
+                </div>
+
+                {/* Footer */}
+                <div className="px-5 py-3.5 bg-slate-50 border-t border-slate-200 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2">
+                  <button
+                    onClick={() => setActiveCanvasApp(null)}
+                    className="touch-target text-xs text-slate-600 font-semibold hover:text-slate-900"
+                  >
+                    ปิดหน้าต่าง
+                  </button>
+
+                  <div className="flex items-center gap-2">
+                    <a
+                      href="https://gemini.google.com"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="touch-target px-3 py-2 rounded-xl bg-blue-50 text-blue-700 text-xs font-bold border border-blue-200"
+                    >
+                      🚀 เปิด Gemini
+                    </a>
+
+                    <button
+                      onClick={() => copyToClipboard(activeCanvasApp.canvasPrompt, "modal-canvas-prompt")}
+                      className="touch-target min-h-[44px] px-5 py-2 rounded-xl bg-baac-800 hover:bg-baac-900 text-white text-xs sm:text-sm font-bold transition flex items-center gap-2 shadow-sm"
+                    >
+                      {copiedId === "modal-canvas-prompt" ? <Icons.Check /> : <Icons.Copy />}
+                      <span>{copiedId === "modal-canvas-prompt" ? "คัดลอกเรียบร้อยแล้ว!" : "คัดลอก Prompt สร้างแอพ"}</span>
+                    </button>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          )}
+
+          {/* Modal: Classroom QR Code (สำหรับผู้เรียน 150 คน) */}
+          {showQrModal && (
+            <div className="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6 animate-fadeIn">
+              <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-200 text-center">
+                
+                <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                  <div className="flex items-center space-x-2">
+                    <span className="p-1.5 bg-amber-400 text-baac-900 rounded-lg text-sm font-bold">📱</span>
+                    <h3 className="font-bold text-slate-900 text-base">QR Code สำหรับผู้เรียน 150 คน</h3>
+                  </div>
+                  <button onClick={() => setShowQrModal(false)} className="touch-target p-2 text-slate-400 hover:text-slate-600">
+                    <Icons.Close />
+                  </button>
+                </div>
+
+                <div className="py-4 flex flex-col items-center">
+                  <p className="text-xs text-slate-600 font-sarabun mb-3">
+                    สแกนด้วยกล้องมือถือ เพื่อเข้าสู่ระบบคลัง Prompt และเครื่องมือสร้างแอพได้พร้อมกัน
+                  </p>
+
+                  {/* QR Code SVG Display */}
+                  <div className="p-3 bg-white rounded-2xl shadow-inner border-2 border-slate-200">
+                    <div
+                      dangerouslySetInnerHTML={{
+                        __html: typeof generateQRCodeSVG === "function" 
+                          ? generateQRCodeSVG(qrCustomUrl, {
+                              size: 240,
+                              color: qrHighContrast ? "#000000" : "#006838",
+                              bgColor: "#ffffff"
+                            })
+                          : "<p class='text-xs text-slate-400 p-4'>กำลังโหลด QR Code...</p>"
+                      }}
+                    />
+                  </div>
+
+                  {/* High Contrast Toggle for Projector */}
+                  <div className="mt-3 flex items-center justify-between w-full max-w-xs px-2 text-xs text-slate-600 font-sarabun">
+                    <span>โหมดคอนทราสต์สูง (สำหรับจอโปรเจกเตอร์):</span>
+                    <input
+                      type="checkbox"
+                      checked={qrHighContrast}
+                      onChange={(e) => setQrHighContrast(e.target.checked)}
+                      className="w-4 h-4 text-baac-700 rounded focus:ring-baac-600"
+                    />
+                  </div>
+
+                  {/* Instructor Custom URL / LAN IP Helper */}
+                  <div className="mt-3 w-full text-left bg-slate-50 p-2.5 rounded-xl border border-slate-200 text-xs font-sarabun">
+                    <label className="block font-bold text-slate-700 mb-1">
+                      URL ของเครื่องวิทยากร (กรณีแชร์ในวง Wi-Fi):
+                    </label>
+                    <div className="flex gap-1.5">
+                      <input
+                        type="text"
+                        value={qrCustomUrl}
+                        onChange={(e) => setQrCustomUrl(e.target.value)}
+                        className="flex-1 p-1.5 text-xs font-mono border border-slate-300 rounded-lg bg-white"
+                      />
+                      <button
+                        onClick={() => copyToClipboard(qrCustomUrl, "qr-url-copy")}
+                        className="touch-target px-2.5 py-1 bg-slate-200 hover:bg-slate-300 rounded-lg text-xs font-semibold shrink-0"
+                      >
+                        {copiedId === "qr-url-copy" ? "คัดลอกแล้ว" : "คัดลอก"}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pt-2">
+                  <button
+                    onClick={() => setShowQrModal(false)}
+                    className="touch-target w-full py-2.5 bg-baac-800 hover:bg-baac-900 text-white font-bold rounded-xl text-xs sm:text-sm transition"
+                  >
+                    ปิดหน้าต่าง
+                  </button>
+                </div>
+
+              </div>
+            </div>
+          )}
+
+          {/* Modal: Mobile Quick Guide Walkthrough */}
+          {showGuideModal && (
+            <div className="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6 animate-fadeIn">
+              <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 text-left overflow-y-auto max-h-[85vh]">
+                <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+                  <div className="flex items-center space-x-2">
+                    <span className="p-1.5 bg-baac-800 text-white rounded-lg text-sm font-bold">📱</span>
+                    <h3 className="font-bold text-slate-900 text-base">คู่มือการใช้งานบนมือถือ (Zero-API)</h3>
+                  </div>
+                  <button onClick={() => setShowGuideModal(false)} className="touch-target p-2 text-slate-400 hover:text-slate-600">
+                    <Icons.Close />
+                  </button>
+                </div>
+
+                <div className="py-4 space-y-4 text-xs font-sarabun text-slate-700">
+                  <div className="bg-emerald-50 border border-emerald-200 p-3 rounded-xl">
+                    <div className="font-bold text-baac-900 text-sm mb-1">ไม่ต้องลงโปรแกรม ไม่ต้องขอ API Key</div>
+                    <p>ระบบนี้ทำงานบนเบราว์เซอร์มือถือของท่านได้ทันที 100% เหมาะสำหรับการเรียนรู้ในห้องอบรม 150 คน</p>
+                  </div>
+
+                  <div className="space-y-2.5">
+                    <div className="flex items-start gap-2.5">
+                      <span className="w-6 h-6 rounded-full bg-baac-800 text-white font-bold flex items-center justify-center shrink-0 text-xs">1</span>
+                      <div>
+                        <div className="font-bold text-slate-900">เลือกกลุ่มงานของตนเอง</div>
+                        <p className="text-slate-600">แตะแถบชิปด้านบน (01 ถึง 11) เพื่อกรองแม่แบบที่ตรงกับสายงานของท่าน</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-2.5">
+                      <span className="w-6 h-6 rounded-full bg-baac-800 text-white font-bold flex items-center justify-center shrink-0 text-xs">2</span>
+                      <div>
+                        <div className="font-bold text-slate-900">แตะปุ่ม "คัดลอก Prompt ทันที"</div>
+                        <p className="text-slate-600">ปุ่มสีเขียวขนาดใหญ่จะคัดลอกข้อความคำสั่งที่สมบูรณ์ลงในมือถือทันที (มีสวิตช์ดูตัวอย่างคำตอบ AI ก่อนได้)</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-2.5">
+                      <span className="w-6 h-6 rounded-full bg-baac-800 text-white font-bold flex items-center justify-center shrink-0 text-xs">3</span>
+                      <div>
+                        <div className="font-bold text-slate-900">แตะปุ่ม "🚀 เปิด Gemini"</div>
+                        <p className="text-slate-600">กดเปิด Google Gemini แล้ววาง (Paste) ข้อความลงในช่องแชทหรือ Canvas เพื่อรับผลงานทันที!</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="bg-amber-50 border border-amber-200 p-3 rounded-xl text-amber-950">
+                    <strong>💡 เคล็ดลับบนมือถือ:</strong> ท่านสามารถแตะ <strong>"เพิ่มไปยังหน้าจอโฮม" (Add to Home Screen)</strong> ในเมนูเบราว์เซอร์ เพื่อเปิดใช้งานเสมือนแอปบนมือถือได้ตลอดเวลา
+                  </div>
+                </div>
+
+                <div className="pt-2">
+                  <button
+                    onClick={() => setShowGuideModal(false)}
+                    className="touch-target w-full py-2.5 bg-baac-800 hover:bg-baac-900 text-white font-bold rounded-xl text-xs sm:text-sm transition"
+                  >
+                    เข้าใจแล้ว เริ่มใช้งานเลย
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Floating Toast Notification when copied */}
+          {copiedId && (
+            <div className="fixed bottom-20 md:bottom-6 left-1/2 -translate-x-1/2 z-50 bg-slate-900 text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center space-x-3 text-xs sm:text-sm font-semibold border border-slate-700 animate-fadeIn">
+              <span className="text-emerald-400 font-bold text-base">✓</span>
+              <span>คัดลอกสำเร็จแล้ว!</span>
+              <a
+                href="https://gemini.google.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="bg-amber-400 hover:bg-amber-500 text-baac-900 px-3 py-1 rounded-xl font-bold text-xs shadow-xs"
+              >
+                เปิด Gemini 🚀
+              </a>
+            </div>
+          )}
+
+          {/* Floating Back to Top Button */}
+          {showBackToTop && (
+            <button
+              onClick={scrollToTop}
+              className="touch-target fixed bottom-20 md:bottom-8 right-4 z-40 w-11 h-11 bg-baac-800 text-white rounded-full shadow-lg flex items-center justify-center hover:bg-baac-900 transition border border-emerald-400"
+              title="กลับขึ้นด้านบน"
+            >
+              <Icons.ArrowUp />
+            </button>
+          )}
+
+          {/* Sticky Mobile Bottom Navigation Bar (แถบนำทางด้านล่างสำหรับมือถือ) */}
+          <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200 py-1.5 px-3 flex items-center justify-around md:hidden shadow-lg">
+            <button
+              onClick={() => {
+                setActiveMode("daily");
+                scrollToTop();
+              }}
+              className={`flex flex-col items-center justify-center py-1 px-2 rounded-xl transition ${
+                activeMode === "daily" ? "text-baac-800 font-bold" : "text-slate-500 hover:text-slate-800"
+              }`}
+            >
+              <Icons.Layers />
+              <span className="text-[10px] mt-0.5">คลัง Prompt</span>
+            </button>
+
+            <button
+              onClick={() => {
+                setActiveMode("canvas");
+                scrollToTop();
+              }}
+              className={`flex flex-col items-center justify-center py-1 px-2 rounded-xl transition ${
+                activeMode === "canvas" ? "text-amber-600 font-bold" : "text-slate-500 hover:text-slate-800"
+              }`}
+            >
+              <Icons.Sparkles />
+              <span className="text-[10px] mt-0.5">สร้างแอพ Canvas</span>
+            </button>
+
+            <button
+              onClick={() => setShowQrModal(true)}
+              className="flex flex-col items-center justify-center py-1 px-2 rounded-xl text-slate-500 hover:text-slate-800 transition"
+            >
+              <Icons.QrCode />
+              <span className="text-[10px] mt-0.5">QR ฉายจอ</span>
+            </button>
+
+            <button
+              onClick={() => setShowGuideModal(true)}
+              className="flex flex-col items-center justify-center py-1 px-2 rounded-xl text-slate-500 hover:text-slate-800 transition"
+            >
+              <Icons.QuestionMark />
+              <span className="text-[10px] mt-0.5">วิธีใช้งาน</span>
+            </button>
+          </nav>
+
+          {/* Official BAAC Corporate Footer */}
+          <footer className="bg-[#032815] text-slate-300 pt-8 pb-12 border-t-4 border-amber-400 text-xs font-sarabun mt-12">
+            <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+              
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-6 pb-6 border-b border-emerald-900/60">
+                {/* Column 1: Organization & Logo */}
+                <div className="md:col-span-5 space-y-3">
+                  <div className="flex items-center space-x-3">
+                    <img
+                      src={typeof BAAC_LOGO_DATA_URI !== "undefined" ? BAAC_LOGO_DATA_URI : "assets/baac-logo.webp"}
+                      alt="โลโก้ ธ.ก.ส."
+                      className="w-12 h-12 object-contain rounded-xl bg-white/10 p-1 border border-amber-300/40"
+                    />
+                    <div>
+                      <h4 className="text-sm font-bold text-white font-sans">
+                        ธนาคารเพื่อการเกษตรและสหกรณ์การเกษตร (ธ.ก.ส.)
+                      </h4>
+                      <p className="text-[11px] text-amber-300 font-medium">
+                        สำนักธุรกรรมการเงิน (Financial Transaction Department)
+                      </p>
+                    </div>
+                  </div>
+                  <p className="text-slate-300 text-[11px] leading-relaxed">
+                    ศูนย์รวมแม่แบบคำสั่งอัจฉริยะ (Prompt Templates) และระบบสร้างแอปพลิเคชันการเงินบน Google Gemini Canvas สำหรับ 11 กลุ่มงาน เพื่อยกระดับการให้บริการทางการเงินที่ยั่งยืน
+                  </p>
+                </div>
+
+                {/* Column 2: Head Office Contact */}
+                <div className="md:col-span-4 space-y-1.5 text-[11px]">
+                  <h5 className="text-xs font-bold text-white font-sans uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                    <span>🏢 สำนักงานใหญ่ ธ.ก.ส.</span>
+                  </h5>
+                  <p className="text-slate-300 leading-relaxed">
+                    2345 ถนนพหลโยธิน แขวงเสนานิคม เขตจตุจักร กรุงเทพฯ 10900
+                  </p>
+                  <p className="text-emerald-300 font-medium">
+                    โทรศัพท์: 0 2555 0555 | Call Center: <strong>1593</strong>
+                  </p>
+                  <p>
+                    เว็บไซต์ทางการ: <a href="https://www.baac.or.th" target="_blank" rel="noopener noreferrer" className="text-amber-400 hover:text-amber-300 underline font-medium">www.baac.or.th</a>
+                  </p>
+                </div>
+
+                {/* Column 3: Quick Resources */}
+                <div className="md:col-span-3 space-y-2 text-[11px]">
+                  <h5 className="text-xs font-bold text-white font-sans uppercase tracking-wider mb-2">
+                    เอกสารและเครื่องมือ
+                  </h5>
+                  <ul className="space-y-1.5">
+                    <li>
+                      <button
+                        onClick={() => setShowQrModal(true)}
+                        className="text-emerald-300 hover:text-emerald-200 underline flex items-center gap-1"
+                      >
+                        <Icons.QrCode />
+                        <span>QR Code ห้องเรียน (150 คน)</span>
+                      </button>
+                    </li>
+                    <li>
+                      <button
+                        onClick={() => setShowGuideModal(true)}
+                        className="text-slate-300 hover:text-white underline flex items-center gap-1"
+                      >
+                        <Icons.QuestionMark />
+                        <span>คู่มือการใช้งานบนมือถือ</span>
+                      </button>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              {/* Developer & Designer Credit Banner */}
+              <div className="my-5 py-3 px-4 rounded-2xl bg-emerald-950/80 border border-amber-400/50 flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left shadow-md">
+                <div className="flex items-center space-x-2.5">
+                  <span className="text-amber-400 text-lg">💡</span>
+                  <span className="text-white text-xs sm:text-sm font-semibold font-sans">
+                    ออกแบบและพัฒนาโดย: <span className="text-amber-300 font-bold text-sm sm:text-base">ชีพธรรม คำวิเศษณ์</span> (<span className="text-emerald-300 font-bold">Tri Ai Consulting</span>)
+                  </span>
+                </div>
+                <span className="text-[11px] text-amber-200 bg-amber-400/15 px-3 py-1 rounded-full border border-amber-400/40 font-medium">
+                  ที่ปรึกษาและวิทยากรด้าน AI & Prompt Engineering
+                </span>
+              </div>
+
+              {/* Bottom Copyright & Security Statement */}
+              <div className="pt-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-[11px] text-slate-400">
+                <div>
+                  สงวนลิขสิทธิ์ พ.ศ. 2569 ธนาคารเพื่อการเกษตรและสหกรณ์การเกษตร | พัฒนาระบบโดย ชีพธรรม คำวิเศษณ์ Tri Ai Consulting
+                </div>
+                <div className="flex items-center space-x-3 text-emerald-400 font-medium">
+                  <span>✓ สถาปัตยกรรม Zero-API ปลอดภัยตามหลัก PDPA</span>
+                  <span>•</span>
+                  <span>มาตรฐานระบบการชำระเงิน ธปท.</span>
+                </div>
+              </div>
+
+            </div>
+          </footer>
+
+        </div>
+      );
+    }
+
+    // Render the React App
+    const root = ReactDOM.createRoot(document.getElementById("root"));
+    root.render(<App />);
+  </script>
+</body>
+</html>
